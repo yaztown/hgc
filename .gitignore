@@ -1,0 +1,7 @@
+RPi/
+bower_components/
+**/migrations/0*
+db.sqlite3
+__pycache__/
+.settings
+.DS_Store

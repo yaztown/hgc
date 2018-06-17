@@ -48,6 +48,8 @@ class DeviceTimingControl(threading.Thread):
         
         self.cycles_per_day = cycles_per_day
         self.cycle_total_duration = timedelta(days=1)/cycles_per_day
+        if duration_on >= self.cycle_total_duration:
+            raise ValueError('Cannot manage (duration_on) with the provided (cycles_per_day)')
         self.duration_on = duration_on
         self.duration_off = self.cycle_total_duration - duration_on
         

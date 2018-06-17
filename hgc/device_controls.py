@@ -25,7 +25,7 @@ class DeviceTimingControl(threading.Thread):
     This class controls the device's On/Off timing
     '''
 
-    def __init__(self, name, rpi_pin, time_on, duration_on, sleep_time=DEFAULT_SLEEP_TIME, cycles_per_day=DEFAULT_CYCLES_PER_DAY):
+    def __init__(self, name, rpi_pin, time_on, duration_on, sleep_time=DEFAULT_SLEEP_TIME, cycles_per_day=DEFAULT_CYCLES_PER_DAY, *args, **kwargs):
         '''
         name           : is a general name for the DeviceControl thread.
         rpi_pin        : is the gpio pin on the raspberry pi.
@@ -59,8 +59,7 @@ class DeviceTimingControl(threading.Thread):
     
     
     @classmethod
-#     def fromTimeOnTimeOff(cls, ton_h, ton_m, ton_s, toff_h, toff_m, toff_s):
-    def from_time_on_and_time_off(cls, name, rpi_pin, stime_on, stime_off, off_tomorrow=False, sleep_time=DEFAULT_SLEEP_TIME, cycles_per_day=DEFAULT_CYCLES_PER_DAY):
+    def from_time_on_and_time_off(cls, name, rpi_pin, stime_on, stime_off, off_tomorrow=False, *args, **kwargs):
         '''
         stime_on : is a string object representing the Turn-On time with a 24-hour
                   format "HH:MM:SS" e.g. "14:45:02", "15:56" or just "21".
@@ -82,15 +81,12 @@ class DeviceTimingControl(threading.Thread):
         next_off = datetime.combine(d_tomorrow if off_tomorrow else d_today, time_off)
         duration_on = next_off - next_on
         
-        return cls(name=name, rpi_pin=rpi_pin, time_on=time_on, duration_on=duration_on, sleep_time=sleep_time, cycles_per_day=cycles_per_day)
+        return cls(name=name, rpi_pin=rpi_pin, time_on=time_on, duration_on=duration_on, *args, **kwargs)
     
     
     def setup_next_cycle(self):
         self.next_on = self.next_off + self.duration_off
         self.next_off = self.next_on + self.duration_on
-    
-    def stop(self):
-        self._exit_loop = True
     
     def _work_(self):
         now = datetime.now()
@@ -103,10 +99,26 @@ class DeviceTimingControl(threading.Thread):
             self.turn_off()
             self.setupNextCycle()
     
+    # Thread control methods
     def run(self):
         while not self._exit_loop:
             self._work_()
             sleep(self.sleep_time)
+    
+    def stop(self):
+        '''
+        This will stop the thread perminently
+        similar to: kill()
+        '''
+        self._exit_loop = True
+    
+    def kill(self):
+        '''
+        This will stop the thread perminently
+        similar to: stop()
+        '''
+        self.stop()
+    
     
     def turn_on(self):
         logging.debug('Device On')

@@ -20,28 +20,36 @@ logging.basicConfig(
 DEFAULT_SLEEP_TIME = 10
 DEFAULT_CYCLES_PER_DAY = 1
 
-class DeviceControl(threading.Thread):
+class DeviceTimingControl(threading.Thread):
     '''
     This class controls the device's On/Off timing
     '''
 
-    def __init__(self, name, time_on, duration_on, sleep_time=DEFAULT_SLEEP_TIME, cycles_per_day=DEFAULT_CYCLES_PER_DAY):
+    def __init__(self, name, rpi_pin, time_on, duration_on, sleep_time=DEFAULT_SLEEP_TIME, cycles_per_day=DEFAULT_CYCLES_PER_DAY):
         '''
-        name: is a general name for the DeviceControl thread.
-        time_on: is a datetime.time() object indicating the time to turn on the device.
-        duration_on: is a datetime.timedelta object indicating the period of time until
-                     turning the device off again.
+        name           : is a general name for the DeviceControl thread.
+        rpi_pin        : is the gpio pin on the raspberry pi.
+        time_on        : is a datetime.time() object indicating the time to turn on the device.
+        duration_on    : is a datetime.timedelta object indicating the period of time until
+                         turning the device off again.
+        sleep_time     : is the time for the thread to sleep before looping again; default = 10 seconds.
+        cycles_per_day : is a factor indicating how many times per day to repeat the off/on/off cycle.
+                         e.g.: A value of 2 will repeat twice a day (12 hours per cycle)
+                               A value of 0.5 will repeat every other day (48 hours per cycle)
+                               A value of 1 (default) will repeat everyday (24 hours per cycle)
         '''
         super().__init__()
         self.sleep_time = sleep_time
         
         self.name = name
+        self.rpi_pin = rpi_pin
         self.time_on = time_on
         self._exit_loop = False
         
-        cycle_total_duration = timedelta(days=1)/cycles_per_day
+        self.cycles_per_day = cycles_per_day
+        self.cycle_total_duration = timedelta(days=1)/cycles_per_day
         self.duration_on = duration_on
-        self.duration_off = cycle_total_duration - duration_on
+        self.duration_off = self.cycle_total_duration - duration_on
         
         today = datetime.now().date()
         self.next_on = datetime.combine(today, time_on)
@@ -50,7 +58,7 @@ class DeviceControl(threading.Thread):
     
     @classmethod
 #     def fromTimeOnTimeOff(cls, ton_h, ton_m, ton_s, toff_h, toff_m, toff_s):
-    def fromTimeOnTimeOff(cls, name, stime_on, stime_off, off_tomorrow=False, sleep_time=DEFAULT_SLEEP_TIME, cycles_per_day=DEFAULT_CYCLES_PER_DAY):
+    def from_time_on_and_time_off(cls, name, rpi_pin, stime_on, stime_off, off_tomorrow=False, sleep_time=DEFAULT_SLEEP_TIME, cycles_per_day=DEFAULT_CYCLES_PER_DAY):
         '''
         stime_on : is a string object representing the Turn-On time with a 24-hour
                   format "HH:MM:SS" e.g. "14:45:02", "15:56" or just "21".
@@ -72,34 +80,41 @@ class DeviceControl(threading.Thread):
         next_off = datetime.combine(d_tomorrow if off_tomorrow else d_today, time_off)
         duration_on = next_off - next_on
         
-        return cls(name=name, time_on=time_on, duration_on=duration_on, sleep_time=sleep_time, cycles_per_day=cycles_per_day)
+        return cls(name=name, rpi_pin=rpi_pin, time_on=time_on, duration_on=duration_on, sleep_time=sleep_time, cycles_per_day=cycles_per_day)
     
     
-    def setupNextCycle(self):
+    def setup_next_cycle(self):
         self.next_on = self.next_off + self.duration_off
         self.next_off = self.next_on + self.duration_on
     
     def stop(self):
         self._exit_loop = True
     
+    def _work_(self):
+        now = datetime.now()
+        
+        if now < self.next_on:
+            self.turn_off()
+        elif now >= self.next_on and now < self.next_off:
+            self.turn_on()
+        else:
+            self.turn_off()
+            self.setupNextCycle()
+    
     def run(self):
         while not self._exit_loop:
-            now = datetime.now()
-            
-            if now < self.next_on:
-                logging.debug('Device Off')
-            elif now >= self.next_on and now < self.next_off:
-                logging.debug('Device On')
-            else:
-                logging.debug('Device Off')
-                self.setupNextCycle()
-            
-            sleep(10)
-
+            self._work_()
+            sleep(self.sleep_time)
+    
+    def turn_on(self):
+        logging.debug('Device On')
+    
+    def turn_off(self):
+        logging.debug('Device Off')
 
 if __name__ == '__main__':
     t_on = time(16,55)
-    th = DeviceControl('veg', t_on, 2)
+    th = DeviceTimingControl('veg', t_on, 2)
     th.start()
     while True:
         print('main thread')

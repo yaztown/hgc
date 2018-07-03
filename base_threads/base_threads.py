@@ -26,10 +26,8 @@ class BaseThread(threading.Thread):
     
     (Development of this class has Raspberry Pi in mind.)
     '''
-    def __init__(self, id=None, loop_sleep_time=DEFAULT_SLEEP_TIME, *args, **kwargs):
+    def __init__(self, loop_sleep_time=DEFAULT_SLEEP_TIME, *args, **kwargs):
         '''
-        id             : is an arbitrary integer to represent the thread which in not unique.
-                         The user shall insure the uniquence of the provided id. (e.g. autoincrementing function)
         loop_sleep_time: is the time for the thread to sleep before looping again; default = DEFAULT_SLEEP_TIME seconds.
         name           : is a general name for the thread.
         group          : should be None; reserved for future extension when a ThreadGroup

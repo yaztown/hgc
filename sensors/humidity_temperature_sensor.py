@@ -6,13 +6,13 @@ HT_SENSORS is the supported sensor dictionary
 
 '''
 
-from . import Adafruit_DHT
-#import Adafruit_DHT
 from collections import deque
 from base_threads import BaseSensor
 from datetime import datetime
 from os import path
 import threading
+import Adafruit_DHT
+# import logging
 
 
 HT_SENSORS = {
@@ -25,14 +25,26 @@ class HumidityTemperatureSensor(BaseSensor):
     '''
     HumidityTemperatureSensor thread class
     '''
+    
+    _initialized_sensors = {}   # This dictionary will hold any initialized sensor
+    
+    @classmethod
+    def get_sensors(cls):
+        return cls._initialized_sensors
+        
+    @classmethod
+    def get_sensor(cls, name):
+        return cls._initialized_sensors.get(name)
+
+    
     def __init__(self, data_pin=None, sensor='22', buff_maxlen=5,
                  save_data=False, save_data_dir='',
                  max_accepted_humidity=100, min_accepted_humidity=0,
                  max_accepted_temperature=100, min_accepted_temperature=0,
                  *args, **kwargs):
         '''
-        data_pin                 :
-        sensor                   :
+        data_pin                 : is the RPi GPIO pin connected to the data out of the sensor
+        sensor                   : is a string which maps to the keys of HT_SENSORS module data
         buff_maxlen              :
         save_data                :
         save_data_dir            :
@@ -53,6 +65,7 @@ class HumidityTemperatureSensor(BaseSensor):
         self.min_accepted_humidity = min_accepted_humidity
         self.max_accepted_temperature = max_accepted_temperature
         self.min_accepted_temperature = min_accepted_temperature
+        HumidityTemperatureSensor._initialized_sensors.__setitem__(self.name, self)
     
     def write_data_to_file(self, humidity, temperature):
         l = threading.Lock()
@@ -87,7 +100,10 @@ class HumidityTemperatureSensor(BaseSensor):
         l = threading.Lock()
         l.acquire()
         i = len(self.dq_humidity)
-        ret = self.dq_humidity[i-1]
+        if i > 0:
+            ret = self.dq_humidity[i-1]
+        else:
+            ret = None
         l.release()
         return ret
     
@@ -95,7 +111,10 @@ class HumidityTemperatureSensor(BaseSensor):
         l = threading.Lock()
         l.acquire()
         i = len(self.dq_temperature)
-        ret = self.dq_temperature[i-1]
+        if i > 0:
+            ret = self.dq_temperature[i-1]
+        else:
+            ret = None
         l.release()
         return ret
     
@@ -133,3 +152,6 @@ class HumidityTemperatureSensor(BaseSensor):
     
     def get_avg_moving_reading(self):
         return dict(humidity=self.get_avg_moving_reading_humidity(), temperature=self.get_avg_moving_reading_temperature())
+    
+    def get_reading(self):
+        return self.get_last_reading()

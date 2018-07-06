@@ -5,6 +5,7 @@ Created on Tuesday 03/07/2018
 '''
 from datetime import datetime, timedelta, time
 from base_threads import BaseDeviceControl
+import logging
 
 DEFAULT_CYCLES_PER_DAY = 1
 
@@ -83,10 +84,14 @@ class DeviceTimingControl(BaseDeviceControl):
             self.turn_on()
         else:
 #             self.turn_off()
-            self.setupNextCycle()
+            self.setup_next_cycle()
     
     def _on_(self):
-        raise NotImplementedError('Should import the RPi.GPIO and do output the pin with the correct logic.')
+        if not self._device_on:
+            logging.debug('Turned On')
+#         raise NotImplementedError('Should import the RPi.GPIO and do output the pin with the correct logic.')
     
     def _off_(self):
-        raise NotImplementedError('Should import the RPi.GPIO and do output the pin with the correct logic.')
+        if self._device_on:
+            logging.debug('Turned Off')
+#         raise NotImplementedError('Should import the RPi.GPIO and do output the pin with the correct logic.')

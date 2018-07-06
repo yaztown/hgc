@@ -5,19 +5,19 @@ Created on Tuesday 03/07/2018
 '''
 
 from base_threads import BaseDeviceControl
-# from sensors import HumidityTemperatureSensor
-from threading import enumerate
-
+from sensors import HumidityTemperatureSensor
 import weakref
-
+import logging
 
 class DeviceHumTempSensorControl(BaseDeviceControl):
     '''
     This class controls the device's On/Off using a sensor
     '''
     def __init__(self, sensor_name=None,
-                 threshold_humidity_upper=100, threshold_humidity_lower=0,
-                 threshold_temp_upper=100, threshold_temp_lower=0,
+                 threshold_humidity_upper=100,
+                 threshold_humidity_lower=0,
+                 threshold_temp_upper=100,
+                 threshold_temp_lower=0,
                  *args, **kwargs):
         '''
         sensor_name             : is name of the sensor threads
@@ -27,13 +27,9 @@ class DeviceHumTempSensorControl(BaseDeviceControl):
         threshold_temp_lower    : is the temperature limit that will turn off the device
         '''
         super().__init__(*args, **kwargs)
-        
-        
-        if sensor_name is None:
-            raise ValueError('Must provide a sensor object.')
-        
-        thread_list = enumerate()
-        _sensor = [t for t in thread_list if t.name==sensor_name][0]
+        _sensor = HumidityTemperatureSensor.get_sensor(sensor_name)
+        if _sensor is None:
+            raise ValueError('Sensor not found')
         self._sensor_ref = weakref.ref(_sensor)
         
         self.threshold_hum_upper = threshold_humidity_upper
@@ -48,17 +44,20 @@ class DeviceHumTempSensorControl(BaseDeviceControl):
     def check_thresholds(self):
         hum, temp = self.read_sensor()
         
-        if not self._device_on:
-            if hum >= self.thr_hum_upper or temp >= self.thr_temp_upper:
+        if hum is None or temp is None:
+            return self._device_on
+        
+        if self._device_on:
+            if hum >= self.threshold_hum_lower or temp >= self.threshold_temp_lower:
                 return True
             else:
                 return False
         else:
-            if hum >= self.thr_hum_lower or temp >= self.thr_temp_lower:
+            if hum >= self.threshold_hum_upper or temp >= self.threshold_temp_upper:
                 return True
             else:
                 return False
-    
+        
     def _auto_control(self):
         if self.check_thresholds():
             self.turn_on()
@@ -66,7 +65,11 @@ class DeviceHumTempSensorControl(BaseDeviceControl):
             self.turn_off()
     
     def _on_(self):
-        raise NotImplementedError('Should import the RPi.GPIO and do output the pin with the correct logic.')
+        if not self._device_on:
+            logging.debug('Turned On at Humidity: {humidity}\tTemperature: {temperature}'.format(**self._sensor_ref().get_reading()))
+#         raise NotImplementedError('Should import the RPi.GPIO and do output the pin with the correct logic.')
     
     def _off_(self):
-        raise NotImplementedError('Should import the RPi.GPIO and do output the pin with the correct logic.')
+        if self._device_on:
+            logging.debug('Turned Off at Humidity: {humidity}\tTemperature: {temperature}'.format(**self._sensor_ref().get_reading()))
+#         raise NotImplementedError('Should import the RPi.GPIO and do output the pin with the correct logic.')

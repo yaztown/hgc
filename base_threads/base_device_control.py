@@ -21,7 +21,7 @@ class BaseDeviceControl(BaseThread):
         self.relay_pin = relay_pin
         self.manual_control = manual_control
         
-        self._device_on = False     # Flag for Device power status
+        self._device_on = None     # Flag for Device power status
     
     def __work__(self):
         if not self.manual_control:

@@ -65,11 +65,11 @@ class DeviceHumTempSensorControl(BaseDeviceControl):
             self.turn_off()
     
     def _on_(self):
-        if not self._device_on:
+        if self._device_on is not True:
             logging.debug('Turned On at Humidity: {humidity}\tTemperature: {temperature}'.format(**self._sensor_ref().get_reading()))
 #         raise NotImplementedError('Should import the RPi.GPIO and do output the pin with the correct logic.')
     
     def _off_(self):
-        if self._device_on:
+        if self._device_on is not False:
             logging.debug('Turned Off at Humidity: {humidity}\tTemperature: {temperature}'.format(**self._sensor_ref().get_reading()))
 #         raise NotImplementedError('Should import the RPi.GPIO and do output the pin with the correct logic.')

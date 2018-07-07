@@ -87,11 +87,11 @@ class DeviceTimingControl(BaseDeviceControl):
             self.setup_next_cycle()
     
     def _on_(self):
-        if not self._device_on:
+        if self._device_on is not True:
             logging.debug('Turned On')
 #         raise NotImplementedError('Should import the RPi.GPIO and do output the pin with the correct logic.')
     
     def _off_(self):
-        if self._device_on:
+        if self._device_on is not False:
             logging.debug('Turned Off')
 #         raise NotImplementedError('Should import the RPi.GPIO and do output the pin with the correct logic.')

@@ -6,7 +6,7 @@ Created on Friday 29/06/2018
 
 from base_threads import BaseThread
 from sensors import HumidityTemperatureSensor
-from device_controls import DeviceTimingControl, DeviceHumTempSensorControl
+from device_controls import DeviceTimingControl, DeviceHumTempSensorControl, DeviceSensorsCompareControl
 from time import sleep
 
 
@@ -44,6 +44,8 @@ class MainLoop(BaseThread):
                 DeviceControlClass = DeviceTimingControl
             elif device_control_type == 'DeviceHumTempSensorControl':
                 DeviceControlClass = DeviceHumTempSensorControl
+            elif device_control_type == 'DeviceSensorsCompareControl':
+                DeviceControlClass = DeviceSensorsCompareControl
             device = DeviceControlClass(**device_setup)
             
             if device is not None:

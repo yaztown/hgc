@@ -73,3 +73,70 @@ class DeviceHumTempSensorControl(BaseDeviceControl):
         if self._device_on is not False:
             logging.debug('Turned Off at Humidity: {humidity}\tTemperature: {temperature}'.format(**self._sensor_ref().get_reading()))
 #         raise NotImplementedError('Should import the RPi.GPIO and do output the pin with the correct logic.')
+
+
+
+class DeviceSensorsCompareControl(BaseDeviceControl):
+    '''
+    This class controls the device's On/Off using two sensors; one inside the box and the other outside.
+    The controller will compare the inside temp to the maximum threshold and the lower being the outside temp.
+    '''
+    def __init__(self, sensor_in_name=None, sensor_out_name=None,
+                 threshold_temp_upper=28,
+                 *args, **kwargs):
+        '''
+        sensor_in_name          : is name of the inside sensor thread
+        sensor_out_name         : is name of the outside sensor thread
+        threshold_temp_upper    : is the temperature limit that will turn on the device
+        '''
+        super().__init__(*args, **kwargs)
+        _sensor_in = HumidityTemperatureSensor.get_sensor(sensor_in_name)
+        _sensor_out = HumidityTemperatureSensor.get_sensor(sensor_out_name)
+        if _sensor_in is None or _sensor_out is None:
+            raise ValueError('Sensor not found')
+        self._sensor_in_ref = weakref.ref(_sensor_in)
+        self._sensor_out_ref = weakref.ref(_sensor_out)
+        
+        self.threshold_temp_upper = threshold_temp_upper
+    
+    def read_sensors(self):
+        reading_in = self._sensor_in_ref().get_reading()
+        reading_out = self._sensor_out_ref().get_reading()
+        return reading_in, reading_out
+    
+    def check_thresholds(self):
+        tolerance = 1.04
+        reading_in, reading_out = self.read_sensors()
+        
+        temp_in = reading_in['temperature']
+        temp_out = reading_out['temperature']
+        
+        if temp_in is None or temp_out is None:
+            return self._device_on
+        
+        if self._device_on:
+            if temp_in >= (temp_out * tolerance):
+                return True
+            else:
+                return False
+        else:
+            if temp_in >= self.threshold_temp_upper:
+                return True
+            else:
+                return False
+        
+    def _auto_control(self):
+        if self.check_thresholds():
+            self.turn_on()
+        else:
+            self.turn_off()
+    
+    def _on_(self):
+        if self._device_on is not True:
+            logging.debug('Turned On at Humidity: {humidity:.1f}\tTemperature: {temperature:.1f}'.format(**self._sensor_in_ref().get_reading()))
+#         raise NotImplementedError('Should import the RPi.GPIO and do output the pin with the correct logic.')
+    
+    def _off_(self):
+        if self._device_on is not False:
+            logging.debug('Turned Off at Humidity: {humidity:.1f}\tTemperature: {temperature:.1f}'.format(**self._sensor_in_ref().get_reading()))
+#         raise NotImplementedError('Should import the RPi.GPIO and do output the pin with the correct logic.')

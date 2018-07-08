@@ -9,10 +9,14 @@ from datetime import time, timedelta
 
 HGC_SETUP = {
     'sensors': [
-        dict(name='hum_temp_dht_22',
+        dict(name='hum_temp_dht_22_in',
              sensor_type='HumidityTemperatureSensor',
              data_pin=4,
-             save_data=True)
+             save_data=False),
+        dict(name='hum_temp_dht_22_out',
+             sensor_type='HumidityTemperatureSensor',
+             data_pin=17,
+             save_data=False),
     ],
     'device_controls': [
         dict(name='light_control',
@@ -28,13 +32,11 @@ HGC_SETUP = {
              duration_on=timedelta(minutes=12),
              cycles_per_day=0.5),
         dict(name='exhaust_fan_control',
-             device_control_type='DeviceHumTempSensorControl',
+             device_control_type='DeviceSensorsCompareControl',
              relay_pin=7,
-             sensor_name='hum_temp_dht_22',
-             threshold_humidity_upper=60,
-             threshold_humidity_lower=50,
+             sensor_in_name='hum_temp_dht_22_in',
+             sensor_out_name='hum_temp_dht_22_out',
              threshold_temp_upper=27,
-             threshold_temp_lower=23
              ),
     ],
 }

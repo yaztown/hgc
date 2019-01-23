@@ -174,19 +174,19 @@ class DeviceHumidityCompareControl(BaseDeviceControl):
         tolerance = 1.04
         reading_in, reading_out = self.read_sensors()
         
-        temp_in = reading_in['humidity']
-        temp_out = reading_out['humidity']
+        humidity_in = reading_in['humidity']
+        humidity_out = reading_out['humidity']
         
-        if temp_in is None or temp_out is None:
+        if humidity_in is None or humidity_out is None:
             return self._device_on
         
         if self._device_on:
-            if temp_in >= (temp_out * tolerance):
+            if humidity_in >= (humidity_out * tolerance):
                 return True
             else:
                 return False
         else:
-            if temp_in >= self.threshold_temp_upper:
+            if humidity_in >= self.threshold_temp_upper:
                 return True
             else:
                 return False

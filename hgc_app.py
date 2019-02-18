@@ -8,7 +8,7 @@ from time import sleep
 from hgc import MainLoop, HGC_SETUP, HGC_SETUP_TEST
 
 import logging
-
+#TODO: Centralize the logging elsewhere
 logging.basicConfig(level=logging.DEBUG,
                     format='%(asctime)s %(threadName)-20s %(levelname)-8s %(message)s',
                     datefmt='%m-%d %H:%M:%S',

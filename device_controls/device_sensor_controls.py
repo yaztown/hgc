@@ -186,7 +186,7 @@ class DeviceHumidityCompareControl(BaseDeviceControl):
             else:
                 return False
         else:
-            if humidity_in >= self.threshold_temp_upper:
+            if humidity_in >= self.threshold_humidity_upper:
                 return True
             else:
                 return False

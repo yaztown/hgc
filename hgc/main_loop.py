@@ -5,8 +5,10 @@ Created on Friday 29/06/2018
 '''
 
 from base_threads import BaseThread
-from sensors import HumidityTemperatureSensor
-from device_controls import DeviceTimingControl, DeviceHumTempSensorControl, DeviceSensorsCompareControl
+# from sensors import HumidityTemperatureSensor
+# from device_controls import DeviceTimingControl, DeviceHumTempSensorControl, DeviceSensorsCompareControl
+import sensors, device_controls
+
 from time import sleep
 
 
@@ -26,12 +28,12 @@ class MainLoop(BaseThread):
         sensors_setup = self.setup_object.get('sensors', []).copy()
         for sensor_setup in sensors_setup:
             SensorClass = None
-            sensor_type = sensor_setup.pop('sensor_type')
-            if sensor_type == 'HumidityTemperatureSensor':
-                SensorClass = HumidityTemperatureSensor
-            sensor = SensorClass(**sensor_setup)
+            class_name = sensor_setup.pop('class_name')
+            if hasattr(sensors, class_name):
+                SensorClass = getattr(sensors, class_name)
             
-            if sensor is not None:
+            if SensorClass is not None:
+                sensor = SensorClass(**sensor_setup)
                 self.sensors.append(sensor)
 #                 sensor.start()
     
@@ -39,16 +41,13 @@ class MainLoop(BaseThread):
         devices_setup = self.setup_object.get('device_controls', []).copy()
         for device_setup in devices_setup:
             DeviceControlClass = None
-            device_control_type = device_setup.pop('device_control_type')
-            if device_control_type == 'DeviceTimingControl':
-                DeviceControlClass = DeviceTimingControl
-            elif device_control_type == 'DeviceHumTempSensorControl':
-                DeviceControlClass = DeviceHumTempSensorControl
-            elif device_control_type == 'DeviceSensorsCompareControl':
-                DeviceControlClass = DeviceSensorsCompareControl
-            device = DeviceControlClass(**device_setup)
+            class_name = device_setup.pop('class_name')
             
-            if device is not None:
+            if hasattr(device_controls, class_name):
+                DeviceControlClass = getattr(device_controls, class_name)
+            
+            if DeviceControlClass is not None:
+                device = DeviceControlClass(**device_setup)
                 self.device_controls.append(device)
     
     def setup_logic(self):

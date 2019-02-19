@@ -28,6 +28,7 @@ class MainLoop(BaseThread):
         sensors_setup = self.setup_object.get('sensors', []).copy()
         for sensor_setup in sensors_setup:
             SensorClass = None
+            sensor = None
             class_name = sensor_setup.pop('class_name')
             if hasattr(sensors, class_name):
                 SensorClass = getattr(sensors, class_name)
@@ -35,12 +36,12 @@ class MainLoop(BaseThread):
             if SensorClass is not None:
                 sensor = SensorClass(**sensor_setup)
                 self.sensors.append(sensor)
-#                 sensor.start()
     
     def _setup_devices(self):
         devices_setup = self.setup_object.get('device_controls', []).copy()
         for device_setup in devices_setup:
             DeviceControlClass = None
+            device = None
             class_name = device_setup.pop('class_name')
             
             if hasattr(device_controls, class_name):

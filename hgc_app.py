@@ -5,7 +5,7 @@ Created on Tuesday 03/07/2018
 '''
 
 from time import sleep
-from hgc import MainLoop, HGC_SETUP, HGC_SETUP_TEST
+from hgc import MainLoop, load_settings_from_file, HGC_SETTINGS, HGC_SETTINGS_TEST
 
 import logging
 #TODO: Centralize the logging elsewhere
@@ -17,7 +17,8 @@ logging.basicConfig(level=logging.DEBUG,
                     )
 
 def main():
-    main_loop = MainLoop(setup_object=HGC_SETUP, name='main_loop', loop_sleep_time=1)
+    settings = load_settings_from_file()
+    main_loop = MainLoop(setup_object=settings, name='main_loop', loop_sleep_time=1)
     logging.debug('Starting main_loop')
     main_loop.start()
     

@@ -8,3 +8,4 @@ __pycache__/
 Adafruit_DHT/
 notes/
 log/*.txt
+weather_data*.txt

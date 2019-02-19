@@ -6,8 +6,15 @@ Created on Tuesday 03/07/2018
 
 from datetime import time, timedelta
 
+import json
 
-HGC_SETUP = {
+def load_settings_from_file(filename='hgc_settings.json'):
+    with open(filename, 'r') as f:
+        data = f.read()
+    return json.loads(data)
+    
+
+HGC_SETTINGS = {
     'sensors': [
         dict(name='hum_temp_dht_22_in',
              class_name='HumidityTemperatureSensor',
@@ -23,14 +30,14 @@ HGC_SETUP = {
         dict(name='light_control',
              class_name='DeviceTimingControl',
              relay_pin=[5, 6],  # 29, 31
-             time_on=time(15),
-             duration_on=timedelta(hours=18),
+             time_on={'hour':15}, # hour=0, minute=0, second=0, microsecond=0, tzinfo=None, *, fold=0
+             duration_on={'hours':18}, # days=0, seconds=0, microseconds=0, milliseconds=0, minutes=0, hours=0, weeks=0
              cycles_per_day=1),
         dict(name='irrigation_control',
              class_name='DeviceTimingControl',
              relay_pin=[22, 27],    # 15, 13
-             time_on=time(14,57),
-             duration_on=timedelta(seconds=50),
+             time_on={'hour':14, 'minute':57}, # hour=0, minute=0, second=0, microsecond=0, tzinfo=None, *, fold=0
+             duration_on={'seconds':50}, # days=0, seconds=0, microseconds=0, milliseconds=0, minutes=0, hours=0, weeks=0
              cycles_per_day=0.5),
         dict(name='exhaust_fan_control',
              class_name='DeviceHumidityCompareControl',
@@ -50,7 +57,7 @@ HGC_SETUP = {
 }
 
 
-HGC_SETUP_TEST = {
+HGC_SETTINGS_TEST = {
     'sensors': [
         dict(name='hum_temp_dht_22',
              class_name='HumidityTemperatureSensor',

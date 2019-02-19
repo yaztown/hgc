@@ -1,0 +1,60 @@
+{
+    "sensors": [
+        {
+            "name": "hum_temp_dht_22_in",
+            "class_name": "HumidityTemperatureSensor",
+            "data_pin": 4,
+            "save_data": true
+        },
+        {
+            "name": "hum_temp_dht_22_out",
+            "class_name": "HumidityTemperatureSensor",
+            "data_pin": 17,
+            "save_data": true
+        }
+    ],
+    "device_controls": [
+        {
+            "name": "light_control",
+            "class_name": "DeviceTimingControl",
+            "relay_pin": [5, 6],
+            "time_on": {
+                "hour": 15
+            },
+            "duration_on": {
+                "hours": 18
+            },
+            "cycles_per_day": 1
+        },
+        {
+            "name": "irrigation_control",
+            "class_name": "DeviceTimingControl",
+            "relay_pin": [22, 27],
+            "time_on": {
+                "hour": 14,
+                "minute": 57
+            },
+            "duration_on": {
+                "seconds": 50
+            },
+            "cycles_per_day": 0.5
+        },
+        {
+            "name": "exhaust_fan_control",
+            "class_name": "DeviceHumidityCompareControl",
+            "relay_pin": [23, 24],
+            "sensor_in_name": "hum_temp_dht_22_in",
+            "sensor_out_name": "hum_temp_dht_22_out",
+            "threshold_humidity_upper": 65
+        },
+        {
+            "name": "intake_fan_control",
+            "class_name": "DeviceTempCompareControl",
+            "relay_pin": [16, 26],
+            "sensor_in_name": "hum_temp_dht_22_in",
+            "sensor_out_name": "hum_temp_dht_22_out",
+            "threshold_temp_upper": 27
+        }
+    ]
+}
+

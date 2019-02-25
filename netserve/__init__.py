@@ -1,3 +1,3 @@
-from .MyHTTPServer import start_dev_server, SimpleAPIRequestHandler, ThreadingHTTPServer, JSONAPIRequestHandler
+from .hgc_server import HGCServer, JSONAPIRequestHandler
 
-__all__ = ['start_dev_server', 'SimpleAPIRequestHandler', 'ThreadingHTTPServer', 'JSONAPIRequestHandler']
+__all__ = ['HGCServer', 'JSONAPIRequestHandler']

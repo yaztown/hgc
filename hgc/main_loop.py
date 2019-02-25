@@ -4,6 +4,8 @@ Created on Friday 29/06/2018
 @author: yaztown
 '''
 
+from netserve import HGCServer, JSONAPIRequestHandler
+
 from base_threads import BaseThread
 # from sensors import HumidityTemperatureSensor
 # from device_controls import DeviceTimingControl, DeviceHumTempSensorControl, DeviceSensorsCompareControl
@@ -58,8 +60,24 @@ class MainLoop(BaseThread):
         for device_control in self.device_controls:
             device_control.start()
     
+    def start_server(self):
+        '''
+        This is the function that will start the server and return the httpd
+        '''
+        #TODO: move the following assignments to the settings file
+        server_class = HGCServer
+        handler_class = JSONAPIRequestHandler
+        HTTP_IP = '0.0.0.0'
+        HTTP_PORT = 8000
+        
+        server_address = (HTTP_IP, HTTP_PORT)
+        httpd = server_class(server_address, handler_class, self)
+        print('Starting the server on address: http://{ip}:{port}'.format(ip=HTTP_IP, port=HTTP_PORT))
+        httpd.serve_forever()
+    
     def start(self):
         self.setup_logic()
+        self.start_server()
         super().start()
     
     def get_status(self):
@@ -67,12 +85,3 @@ class MainLoop(BaseThread):
 
     def __work__(self):
         sleep(2)
-
-# if __name__ == '__main__':
-#     main_loop = MainLoop(setup_object=SETUP_OBJECT, name='main_loop', loop_sleep_time=1)
-#     main_loop.start()
-#     
-#     while True:
-#         if not main_loop.get_status():
-#             raise Exception()
-#         sleep(2)

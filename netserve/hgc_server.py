@@ -49,16 +49,26 @@ class JSONAPIRequestHandler(BaseHTTPRequestHandler):
         <html>
         <body>
         <div>
-            temp in: {}<br/> temp out: {}
+        <table>
+            <tr>
+                <td></td><td>temp</td><td>humd</td>
+            </tr>
+            <tr>
+                <td>in</td><td>{temp_in:.1f}</td><td>{humidity_in:.1f}</td>
+            </tr>
+            <tr>
+                <td>out</td><td>{temp_out:.1f}</td><td>{humidity_out:.1f}</td>
+            </tr>
+        </table>
         </div>
-            <!--<form action="/" method="post">
-                <input type="text" name="description" value="some text">
-                <input type="password" name="passwd">
-                <button type="submit">Submit</button>
-            </form>-->
         </body>
         </html>
-        '''.format(reading_0, reading_1)
+        '''.format(**{
+            'temp_in': reading_0['temperature'],
+            'temp_out':reading_1['temperature'],
+            'humidity_in': reading_0['humidity'],
+            'humidity_out':reading_1['humidity']
+            })
         self.write(page)
     
     def do_POST(self):

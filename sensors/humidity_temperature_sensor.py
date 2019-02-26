@@ -69,7 +69,7 @@ class HumidityTemperatureSensor(BaseSensor):
     
     def write_data_to_file(self, humidity, temperature):
         l = threading.Lock()
-        file_name = 'weather_data_{:%Y_%m_%d}.txt'.format(datetime.now())
+        file_name = 'sensor_{}_{:%Y_%m_%d}.txt'.format(self.name, datetime.now())
         file_path = path.join(self.save_data_dir, file_name)
         l.acquire()
         with open(file_path, 'a+') as fd:
@@ -155,3 +155,4 @@ class HumidityTemperatureSensor(BaseSensor):
     
     def get_reading(self):
         return self.get_last_reading()
+

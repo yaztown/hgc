@@ -4,13 +4,15 @@
             "name": "hum_temp_dht_22_in",
             "class_name": "HumidityTemperatureSensor",
             "data_pin": 4,
-            "save_data": true
+            "save_data": true,
+            "save_data_dir": "log"
         },
         {
             "name": "hum_temp_dht_22_out",
             "class_name": "HumidityTemperatureSensor",
             "data_pin": 17,
-            "save_data": true
+            "save_data": true,
+            "save_data_dir": "log"
         }
     ],
     "device_controls": [

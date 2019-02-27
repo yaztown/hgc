@@ -4,7 +4,7 @@ Created on Friday 29/06/2018
 @author: yaztown
 '''
 
-from netserve import HGCServer, JSONAPIRequestHandler
+from netserve import HGCServer, SimpleHTTPAPIRequestHandler
 
 from base_threads import BaseThread
 # from sensors import HumidityTemperatureSensor
@@ -66,7 +66,7 @@ class MainLoop(BaseThread):
         '''
         #TODO: move the following assignments to the settings file
         server_class = HGCServer
-        handler_class = JSONAPIRequestHandler
+        handler_class = SimpleHTTPAPIRequestHandler
         HTTP_IP = '0.0.0.0'
         HTTP_PORT = 8000
         

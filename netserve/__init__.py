@@ -1,3 +1,3 @@
-from .hgc_server import HGCServer, JSONAPIRequestHandler
+from .hgc_server import HGCServer, JSONAPIRequestHandler, SimpleHTTPAPIRequestHandler
 
-__all__ = ['HGCServer', 'JSONAPIRequestHandler']
+__all__ = ['HGCServer', 'JSONAPIRequestHandler', 'SimpleHTTPAPIRequestHandler']

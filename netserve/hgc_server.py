@@ -4,11 +4,11 @@ Created on Monday 25/02/2019
 @author: yaztown
 '''
 from socketserver import ThreadingMixIn
-from http.server import BaseHTTPRequestHandler, HTTPServer
+from http.server import BaseHTTPRequestHandler, HTTPServer, SimpleHTTPRequestHandler
 
 from urllib.parse import parse_qs
 
-import json
+import json, urllib, os, posixpath
 
 __version__ = "0.0.1"
 
@@ -49,16 +49,26 @@ class JSONAPIRequestHandler(BaseHTTPRequestHandler):
         <html>
         <body>
         <div>
-            temp in: {}<br/> temp out: {}
+        <table>
+            <tr>
+                <td></td><td>temp</td><td>humd</td>
+            </tr>
+            <tr>
+                <td>in</td><td>{temp_in:.1f}</td><td>{humidity_in:.1f}</td>
+            </tr>
+            <tr>
+                <td>out</td><td>{temp_out:.1f}</td><td>{humidity_out:.1f}</td>
+            </tr>
+        </table>
         </div>
-            <!--<form action="/" method="post">
-                <input type="text" name="description" value="some text">
-                <input type="password" name="passwd">
-                <button type="submit">Submit</button>
-            </form>-->
         </body>
         </html>
-        '''.format(reading_0, reading_1)
+        '''.format(**{
+            'temp_in': reading_0['temperature'],
+            'temp_out':reading_1['temperature'],
+            'humidity_in': reading_0['humidity'],
+            'humidity_out':reading_1['humidity']
+            })
         self.write(page)
     
     def do_POST(self):
@@ -69,5 +79,106 @@ class JSONAPIRequestHandler(BaseHTTPRequestHandler):
         self.send_response(200)
         resp_ctype = 'application/json'
         self.send_header('Content-Type', resp_ctype)
+        self.end_headers()
+        self.write(json.dumps(parse_qs(qs, keep_blank_values=True), indent = 2))
+
+class SimpleHTTPAPIRequestHandler(SimpleHTTPRequestHandler):
+    '''
+    classdocs
+    '''
+    server_version = "HGC_Server/" + __version__
+    www_dir = 'www'
+    
+    def version_string(self):
+        """Return the server software version string."""
+        return self.server_version
+    
+    def write(self, message):
+        if type(message).__name__ == 'str':
+            self.wfile.write(bytes(message, 'UTF-8'))
+        elif type(message).__name__ == 'bytes':
+            self.wfile.write(message)
+    
+    def handle_api_request(self):
+        self.test_handle_api_request()
+    
+    def test_handle_api_request(self):
+        self.send_response(200)
+        resp_ctype = 'text/html'
+        self.send_header('Content-Type', resp_ctype)
+        self.end_headers()
+        reading_0 = self.server.mainLoop.sensors[0].get_reading()
+        reading_1 = self.server.mainLoop.sensors[1].get_reading()
+        page = '''
+        <html>
+        <body>
+        <div>
+        <table>
+            <tr>
+                <td></td><td>temp</td><td>humd</td>
+            </tr>
+            <tr>
+                <td>in</td><td>{temp_in:.1f}</td><td>{humidity_in:.1f}</td>
+            </tr>
+            <tr>
+                <td>out</td><td>{temp_out:.1f}</td><td>{humidity_out:.1f}</td>
+            </tr>
+        </table>
+        </div>
+        </body>
+        </html>
+        '''.format(**{
+            'temp_in': reading_0['temperature'],
+            'temp_out':reading_1['temperature'],
+            'humidity_in': reading_0['humidity'],
+            'humidity_out':reading_1['humidity']
+            })
+        self.write(page)
+    
+    def translate_path(self, path):
+        """Translate a /-separated PATH to the local filename syntax.
+
+        Components that mean special things to the local file system
+        (e.g. drive or directory names) are ignored.  (XXX They should
+        probably be diagnosed.)
+
+        """
+        # abandon query parameters
+        path = path.split('?',1)[0]
+        path = path.split('#',1)[0]
+        # Don't forget explicit trailing slash when normalizing. Issue17324
+        trailing_slash = path.rstrip().endswith('/')
+        try:
+            path = urllib.parse.unquote(path, errors='surrogatepass')
+        except UnicodeDecodeError:
+            path = urllib.parse.unquote(path)
+        path = posixpath.normpath(path)
+        words = path.split('/')
+        words = filter(None, words)
+        path = os.getcwd() + '/' + self.www_dir
+        for word in words:
+            drive, word = os.path.splitdrive(word)
+            head, word = os.path.split(word)
+            if word in (os.curdir, os.pardir): continue
+            path = os.path.join(path, word)
+        if trailing_slash:
+            path += '/'
+        return path
+    
+    def do_GET(self):
+        print(self.path)
+        if self.path.endswith('/api') or self.path.endswith('/api/'):
+            self.handle_api_request()
+        else:
+            super().do_GET()
+    
+    def do_POST(self):
+        content_len = int(self.headers.get('content-length', 0))
+        post_body = self.rfile.read(content_len)
+        qs = post_body.decode()
+        print(qs)
+        self.send_response(200)
+        json_ct = 'application/json'
+        self.send_header('Content-Type', json_ct)
         self.end_headers()
         self.write(json.dumps(parse_qs(qs, keep_blank_values=True), indent = 2))

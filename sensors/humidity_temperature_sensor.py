@@ -67,7 +67,7 @@ class HumidityTemperatureSensor(BaseSensor):
         self.min_accepted_temperature = min_accepted_temperature
         HumidityTemperatureSensor._initialized_sensors.__setitem__(self.name, self)
     
-    def write_data_to_file(self, humidity, temperature):
+    def _write_data_to_file(self, humidity, temperature):
         l = threading.Lock()
         file_name = 'sensor_{}_{:%Y_%m_%d}.txt'.format(self.name, datetime.now())
         file_path = path.join(self.save_data_dir, file_name)
@@ -77,7 +77,7 @@ class HumidityTemperatureSensor(BaseSensor):
         l.release()
  
         #TODO: Fix the commented area
-    def is_reading_accepted(self, h, t):
+    def _is_reading_accepted(self, h, t):
         hh = tt = False
         if h is not None and t is not None:
             if h >= self.min_accepted_humidity and h <= self.max_accepted_humidity:
@@ -88,11 +88,11 @@ class HumidityTemperatureSensor(BaseSensor):
 
     def _read_sensor(self):
         h, t = Adafruit_DHT.read_retry(self.sensor, self.data_pin)
-        if h is not None and t is not None and self.is_reading_accepted(h, t):
+        if h is not None and t is not None and self._is_reading_accepted(h, t):
             self.dq_humidity.append(h)
             self.dq_temperature.append(t)
             if self.save_data:
-                self.write_data_to_file(h, t)
+                self._write_data_to_file(h, t)
     
     # the sensor's data
     
@@ -155,4 +155,20 @@ class HumidityTemperatureSensor(BaseSensor):
     
     def get_reading(self):
         return self.get_last_reading()
-
+    
+    @property
+    def _serialized_(self):
+        serialized = super()._serialized_
+        serialized.update({
+            'dataPin': self.data_pin,
+            'sensor': self.sensor,
+            'buffMaxlen': self.buff_maxlen,
+            'saveData': self.save_data,
+            'saveDataDir': self.save_data_dir,
+            'maxAcceptedHumidity': self.max_accepted_humidity,
+            'minAcceptedHumidity': self.min_accepted_humidity,
+            'maxAcceptedTemperature': self.max_accepted_temperature,
+            'minAcceptedTemperature': self.min_accepted_temperature,
+            'reading': self.get_reading()
+        })
+        return serialized

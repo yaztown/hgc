@@ -1,76 +1,39 @@
 '''
-Created on Thursday 07/03/2019
+Created on Monday 11/03/2019
 
 @author: yaztown
 '''
 
-from netserve.response import HttpResponse, JsonResponse
-
-from sensors import HumidityTemperatureSensor
-from device_controls import DeviceHumidityCompareControl, DeviceTempCompareControl, DeviceTimingControl
-
-class HGC_View(object):
-    '''
-    classdocs
-    '''
-    model_class = None
-    
-    def __init__(self, request=None, response_class=HttpResponse):
-        '''
-        Constructor
-        '''
-        self.request = request
-        self.response = response_class
-    
-    @classmethod
-    def as_view(cls):
-        pass
-    
-    def get_model_class(self):
-        return self.model_class
+from base_threads import BaseSensor, BaseDeviceControl
+from hgc.core.json import HGCJSONEncoder, dumps
 
 
-import json
+_json_indent = 4
 
-class HGC_List_View(HGC_View):
-    @classmethod
-    def as_view(cls, request=None):
-        view = cls(request=request)
-        # TODO: add the get_list method to the devices and sensors bases classes
-        return json.dumps(view.model_class.get_list())
+def get_sensors(kwargs):
+    sensor_list = BaseSensor._get_instances(recursive=True)
+    retval = dumps(sensor_list, indent=_json_indent)
+    return retval
 
-class HGC_Detail_View(HGC_View):
-    @classmethod
-    def as_view(cls, request=None, id_tag='id'):
-        view = cls(request=request)
-        # TODO: add the get_item_id method to the devices and sensors bases classes
-        return json.dumps(view.model_class.get_item_id(id))
+def get_sensor_by_name(kwargs):
+    sensor_list = BaseSensor._get_instances(recursive=True)
+    sensor = [sensor for sensor in sensor_list if sensor.name == kwargs['sensor_name']][0]
+    retval = dumps(sensor, cls=HGCJSONEncoder, indent=_json_indent)
+    return retval
 
-
-class HGC_Sensor_List_View(HGC_List_View):
-    model_class = HumidityTemperatureSensor
-
-class HGC_Sensor_Detail_View(HGC_Detail_View):
-    model_class = HumidityTemperatureSensor
+def get_sensor_by_number(kwargs):
+    pass
 
 
-class HGC_Timing_Controller_List_View(HGC_List_View):
-    model_class = DeviceTimingControl
+def get_controllers(kwargs):
+    controller_list = BaseDeviceControl._get_instances(recursive=True)
+    retval = dumps(controller_list, cls=HGCJSONEncoder, indent=_json_indent)
+    return retval
 
-class HGC_Timing_Controller_Detail_View(HGC_Detail_View):
-    model_class = DeviceTimingControl
+def get_controller_by_name(kwargs):
+    controller_list = BaseDeviceControl._get_instances(recursive=True)
+    controller = [controller for controller in controller_list if controller.name == kwargs['controller_name']][0]
+    return dumps(controller, cls=HGCJSONEncoder, indent=_json_indent)
 
-
-class HGC_HumidityCompare_Controller_List_View(HGC_List_View):
-    model_class = DeviceHumidityCompareControl
-
-class HGC_HumidityCompare_Controller_Detail_View(HGC_Detail_View):
-    model_class = DeviceHumidityCompareControl
-
-
-class HGC_TempCompare_Controller_List_View(HGC_List_View):
-    model_class = DeviceTempCompareControl
-
-class HGC_TempCompare_Controller_Detail_View(HGC_Detail_View):
-    model_class = DeviceTempCompareControl
-
+def get_controller_by_number(kwargs):
+    pass

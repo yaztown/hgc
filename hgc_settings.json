@@ -1,14 +1,14 @@
 {
     "sensors": [
         {
-            "name": "hum_temp_dht_22_in",
+            "name": "ht_out",
             "class_name": "HumidityTemperatureSensor",
             "data_pin": 4,
             "save_data": true,
             "save_data_dir": "log"
         },
         {
-            "name": "hum_temp_dht_22_out",
+            "name": "ht_in",
             "class_name": "HumidityTemperatureSensor",
             "data_pin": 17,
             "save_data": true,
@@ -45,16 +45,16 @@
             "name": "exhaust_fan_control",
             "class_name": "DeviceHumidityCompareControl",
             "relay_pin": [23, 24],
-            "sensor_in_name": "hum_temp_dht_22_in",
-            "sensor_out_name": "hum_temp_dht_22_out",
+            "sensor_in_name": "ht_in",
+            "sensor_out_name": "ht_out",
             "threshold_humidity_upper": 65
         },
         {
             "name": "intake_fan_control",
             "class_name": "DeviceTempCompareControl",
             "relay_pin": [16, 26],
-            "sensor_in_name": "hum_temp_dht_22_in",
-            "sensor_out_name": "hum_temp_dht_22_out",
+            "sensor_in_name": "ht_in",
+            "sensor_out_name": "ht_out",
             "threshold_temp_upper": 27
         }
     ]

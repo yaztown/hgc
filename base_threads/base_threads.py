@@ -13,6 +13,7 @@ file: base_threads.py
 
 #device_control_base
 
+from .class_instance_registry import MetaInstanceRegistry
 from time import sleep
 import threading
 
@@ -20,7 +21,7 @@ import threading
 DEFAULT_SLEEP_TIME = 2
 
 
-class BaseThread(threading.Thread):
+class BaseThread(threading.Thread, metaclass=MetaInstanceRegistry):
     '''
     class: BaseThread
     
@@ -120,3 +121,16 @@ class BaseThread(threading.Thread):
         similar to: stop()
         '''
         self.stop()
+    
+    @property
+    def _serialized_(self):
+        return {
+            'loopSleepTime': self.loop_sleep_time,
+            'name': self.name,
+            'daemon': self.daemon,
+            'isAlive': self.is_alive(),
+            'started': self._started.is_set(),
+            'exitLoop': self._exit_loop,
+            'paused': self._paused,
+            'isStopped': self._is_stopped,
+        }

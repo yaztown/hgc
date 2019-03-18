@@ -57,7 +57,7 @@ class BaseDeviceControl(BaseThread):
         
         *** Note: If needed, subclasses should override this method not self.turn_on()
         '''
-        raise NotImplementedError('TODO: must be implement now by assigning the correct logic on the relay_pin')
+        raise NotImplementedError('TODO: must be implemented by assigning the correct logic on the relay_pin')
     
     def _off_(self):
         
@@ -67,7 +67,7 @@ class BaseDeviceControl(BaseThread):
         
         *** Note: If needed, subclasses should override this method not self.turn_off()
         '''
-        raise NotImplementedError('TODO: must be implement now by assigning the correct logic on the relay_pin')
+        raise NotImplementedError('TODO: must be implemented by assigning the correct logic on the relay_pin')
     
     # Device main On and Off methods
     def turn_on(self):
@@ -83,3 +83,13 @@ class BaseDeviceControl(BaseThread):
         '''
         self._off_()
         self._device_on = False
+    
+    @property
+    def _serialized_(self):
+        serialized = super()._serialized_
+        serialized.update({
+            'relayPin': self.relay_pin,
+            'manualControl': self.manual_control,
+            'deviceOn': self._device_on,
+        })
+        return serialized

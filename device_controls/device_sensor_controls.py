@@ -134,12 +134,12 @@ class DeviceSensorsCompareControl(BaseDeviceControl):
     def _on_(self):
         if self._device_on is not True:
             logging.debug('Turned On at Humidity: {humidity:.1f}\tTemperature: {temperature:.1f}'.format(**self._sensor_in_ref().get_reading()))
-#         raise NotImplementedError('Should import the RPi.GPIO and do output the pin with the correct logic.')
+            #raise NotImplementedError('Should import the RPi.GPIO and do output the pin with the correct logic.')
     
     def _off_(self):
         if self._device_on is not False:
             logging.debug('Turned Off at Humidity: {humidity:.1f}\tTemperature: {temperature:.1f}'.format(**self._sensor_in_ref().get_reading()))
-#         raise NotImplementedError('Should import the RPi.GPIO and do output the pin with the correct logic.')
+            #raise NotImplementedError('Should import the RPi.GPIO and do output the pin with the correct logic.')
 
 
 class DeviceHumidityCompareControl(BaseDeviceControl):
@@ -148,12 +148,12 @@ class DeviceHumidityCompareControl(BaseDeviceControl):
     The controller will compare the inside humidity to the maximum threshold and the lower being the outside temp.
     '''
     def __init__(self, sensor_in_name=None, sensor_out_name=None,
-                 threshold_humidity_upper=70,
+                 threshold_humidity_upper=70, tolerance=1.04,
                  *args, **kwargs):
         '''
-        sensor_in_name          : is name of the inside sensor thread
-        sensor_out_name         : is name of the outside sensor thread
-        threshold_temp_upper    : is the temperature limit that will turn on the device
+        sensor_in_name           : is name of the inside sensor thread
+        sensor_out_name          : is name of the outside sensor thread
+        threshold_humidity_upper : is the humidity limit that will turn on the device
         '''
         super().__init__(*args, **kwargs)
         _sensor_in = HumidityTemperatureSensor.get_sensor(sensor_in_name)
@@ -162,7 +162,7 @@ class DeviceHumidityCompareControl(BaseDeviceControl):
             raise ValueError('Sensor not found')
         self._sensor_in_ref = weakref.ref(_sensor_in)
         self._sensor_out_ref = weakref.ref(_sensor_out)
-        
+        self.tolerance = tolerance
         self.threshold_humidity_upper = threshold_humidity_upper
     
     def read_sensors(self):
@@ -171,7 +171,6 @@ class DeviceHumidityCompareControl(BaseDeviceControl):
         return reading_in, reading_out
     
     def check_thresholds(self):
-        tolerance = 1.04
         reading_in, reading_out = self.read_sensors()
         
         humidity_in = reading_in['humidity']
@@ -181,7 +180,7 @@ class DeviceHumidityCompareControl(BaseDeviceControl):
             return self._device_on
         
         if self._device_on:
-            if humidity_in >= (humidity_out * tolerance):
+            if humidity_in >= (humidity_out * self.tolerance):
                 return True
             else:
                 return False
@@ -200,12 +199,24 @@ class DeviceHumidityCompareControl(BaseDeviceControl):
     def _on_(self):
         if self._device_on is not True:
             logging.debug('Turned On at Humidity: {humidity:.1f}\tTemperature: {temperature:.1f}'.format(**self._sensor_in_ref().get_reading()))
-#         raise NotImplementedError('Should import the RPi.GPIO and do output the pin with the correct logic.')
+            #raise NotImplementedError('Should import the RPi.GPIO and do output the pin with the correct logic.')
     
     def _off_(self):
         if self._device_on is not False:
             logging.debug('Turned Off at Humidity: {humidity:.1f}\tTemperature: {temperature:.1f}'.format(**self._sensor_in_ref().get_reading()))
-#         raise NotImplementedError('Should import the RPi.GPIO and do output the pin with the correct logic.')
+            #raise NotImplementedError('Should import the RPi.GPIO and do output the pin with the correct logic.')
+
+    @property
+    def _serialized_(self):
+        serialized = super()._serialized_
+        serialized.update({'info': {
+            'sensorInName': self._sensor_in_ref().name,
+            'sensorOutName': self._sensor_out_ref().name,
+            'thresholdHumidityUpper': self.threshold_humidity_upper,
+            'tolerance': self.tolerance,
+        }})
+        return serialized
+
 
 
 class DeviceTempCompareControl(BaseDeviceControl):
@@ -214,7 +225,7 @@ class DeviceTempCompareControl(BaseDeviceControl):
     The controller will compare the inside temp to the maximum threshold and the lower being the outside temp.
     '''
     def __init__(self, sensor_in_name=None, sensor_out_name=None,
-                 threshold_temp_upper=28,
+                 threshold_temp_upper=28, tolerance=1.04,
                  *args, **kwargs):
         '''
         sensor_in_name          : is name of the inside sensor thread
@@ -228,7 +239,7 @@ class DeviceTempCompareControl(BaseDeviceControl):
             raise ValueError('Sensor not found')
         self._sensor_in_ref = weakref.ref(_sensor_in)
         self._sensor_out_ref = weakref.ref(_sensor_out)
-        
+        self.tolerance = tolerance
         self.threshold_temp_upper = threshold_temp_upper
     
     def read_sensors(self):
@@ -237,7 +248,6 @@ class DeviceTempCompareControl(BaseDeviceControl):
         return reading_in, reading_out
     
     def check_thresholds(self):
-        tolerance = 1.04
         reading_in, reading_out = self.read_sensors()
         
         temp_in = reading_in['temperature']
@@ -247,7 +257,7 @@ class DeviceTempCompareControl(BaseDeviceControl):
             return self._device_on
         
         if self._device_on:
-            if temp_in >= (temp_out * tolerance):
+            if temp_in >= (temp_out * self.tolerance):
                 return True
             else:
                 return False
@@ -266,9 +276,20 @@ class DeviceTempCompareControl(BaseDeviceControl):
     def _on_(self):
         if self._device_on is not True:
             logging.debug('Turned On at Humidity: {humidity:.1f}\tTemperature: {temperature:.1f}'.format(**self._sensor_in_ref().get_reading()))
-#         raise NotImplementedError('Should import the RPi.GPIO and do output the pin with the correct logic.')
+            #raise NotImplementedError('Should import the RPi.GPIO and do output the pin with the correct logic.')
     
     def _off_(self):
         if self._device_on is not False:
             logging.debug('Turned Off at Humidity: {humidity:.1f}\tTemperature: {temperature:.1f}'.format(**self._sensor_in_ref().get_reading()))
-#         raise NotImplementedError('Should import the RPi.GPIO and do output the pin with the correct logic.')
+            #raise NotImplementedError('Should import the RPi.GPIO and do output the pin with the correct logic.')
+    
+    @property
+    def _serialized_(self):
+        serialized = super()._serialized_
+        serialized.update({'info': {
+            'sensorInName': self._sensor_in_ref().name,
+            'sensorOutName': self._sensor_out_ref().name,
+            'thresholdTempUpper': self.threshold_temp_upper,
+            'tolerance': self.tolerance,
+        }})
+        return serialized

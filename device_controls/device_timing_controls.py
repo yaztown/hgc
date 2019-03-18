@@ -90,9 +90,22 @@ class DeviceTimingControl(BaseDeviceControl):
     def _on_(self):
         if self._device_on is not True:
             logging.debug('Turned On')
-#         raise NotImplementedError('Should import the RPi.GPIO and do output the pin with the correct logic.')
+            #raise NotImplementedError('Should import the RPi.GPIO and do output the pin with the correct logic.')
     
     def _off_(self):
         if self._device_on is not False:
             logging.debug('Turned Off')
-#         raise NotImplementedError('Should import the RPi.GPIO and do output the pin with the correct logic.')
+            #raise NotImplementedError('Should import the RPi.GPIO and do output the pin with the correct logic.')
+
+    @property
+    def _serialized_(self):
+        serialized = super()._serialized_
+        serialized.update({'info': {
+            'time_on': self.time_on,
+            'duration_on': self.duration_on,
+            'cycles_per_day': self.cycles_per_day,
+            'cycle_total_duration': self.cycle_total_duration,
+            'next_on': self.next_on,
+            'next_off': self.next_off,
+        }})
+        return serialized

@@ -29,5 +29,5 @@ class SimpleURLHandler(object):
             del p
             if m is not None:
                 params = m.groupdict()
-                return url_conf[1](params)
+                return url_conf[1](self.request, params)
         return error_message

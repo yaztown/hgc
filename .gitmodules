@@ -1,0 +1,3 @@
+[submodule "hgc-app"]
+	path = hgc-app
+	url = https://github.com/yaztown/hgc-app.git

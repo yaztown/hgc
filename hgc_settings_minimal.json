@@ -1,0 +1,59 @@
+{
+    "sensors": [
+        {
+            "name": "ht_out",
+            "class_name": "HumidityTemperatureSensor",
+            "data_pin": 4,
+            "save_data": true,
+            "save_data_dir": "log"
+        },
+        {
+            "name": "ht_in",
+            "class_name": "HumidityTemperatureSensor",
+            "data_pin": 17,
+            "save_data": true,
+            "save_data_dir": "log"
+        }
+    ],
+    "device_controls": [
+        {
+            "name": "light_control",
+            "class_name": "DeviceTimingControl",
+            "relay_pin": [5, 6],
+            "time_on": {
+                "hour": 12
+            },
+            "duration_on": {
+                "hours": 12
+            },
+            "cycles_per_day": 1
+        },
+        {
+            "name": "irrigation_control",
+            "class_name": "DeviceTimingControl",
+            "relay_pin": [22, 27],
+            "time_on": {
+                "hour": 11,
+                "minute": 57
+            },
+            "duration_on": {
+                "seconds": 50
+            },
+            "cycles_per_day": 0.5
+        },
+        {
+            "name": "exhaust_fan_control",
+            "class_name": "DeviceTimingControl",
+            "relay_pin": [23, 24],
+            "time_on": {
+                "hour": 12,
+                "minute": 0
+            },
+            "duration_on": {
+                "seconds": 300
+            },
+            "cycles_per_day": 48
+        }
+    ]
+}
+

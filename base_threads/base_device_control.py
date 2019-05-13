@@ -6,6 +6,8 @@ Created on Tuesday 03/07/2018
 
 from .base_threads import BaseThread
 
+from pin_out import MyGPIO
+
 class BaseDeviceControl(BaseThread):
     '''
     BaseDeviceControl class is the base of all the device control classes such as
@@ -19,6 +21,8 @@ class BaseDeviceControl(BaseThread):
         '''
         super().__init__(*args, **kwargs)
         self.relay_pin = relay_pin
+        gpio = MyGPIO()
+        gpio.setup(self.relay_pin, gpio.OUT)
         self.manual_control = manual_control
         
         self._device_on = None     # Flag for Device power status

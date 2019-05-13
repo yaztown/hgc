@@ -160,15 +160,15 @@ class HumidityTemperatureSensor(BaseSensor):
     def _serialized_(self):
         serialized = super()._serialized_
         serialized.update({
-            'dataPin': self.data_pin,
+            'data_pin': self.data_pin,
             'sensor': self.sensor,
-            'buffMaxlen': self.buff_maxlen,
-            'saveData': self.save_data,
-            'saveDataDir': self.save_data_dir,
-            'maxAcceptedHumidity': self.max_accepted_humidity,
-            'minAcceptedHumidity': self.min_accepted_humidity,
-            'maxAcceptedTemperature': self.max_accepted_temperature,
-            'minAcceptedTemperature': self.min_accepted_temperature,
+            'buff_maxlen': self.buff_maxlen,
+            'save_data': self.save_data,
+            'save_data_dir': self.save_data_dir,
+            'max_accepted_humidity': self.max_accepted_humidity,
+            'min_accepted_humidity': self.min_accepted_humidity,
+            'max_accepted_temperature': self.max_accepted_temperature,
+            'min_accepted_temperature': self.min_accepted_temperature,
             'reading': self.get_reading()
         })
         return serialized

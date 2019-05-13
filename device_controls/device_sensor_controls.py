@@ -210,9 +210,9 @@ class DeviceHumidityCompareControl(BaseDeviceControl):
     def _serialized_(self):
         serialized = super()._serialized_
         serialized.update({'info': {
-            'sensorInName': self._sensor_in_ref().name,
-            'sensorOutName': self._sensor_out_ref().name,
-            'thresholdHumidityUpper': self.threshold_humidity_upper,
+            '_sensor_in_name': self._sensor_in_ref().name,
+            '_sensor_out_name': self._sensor_out_ref().name,
+            'threshold_humidity_upper': self.threshold_humidity_upper,
             'tolerance': self.tolerance,
         }})
         return serialized
@@ -287,9 +287,9 @@ class DeviceTempCompareControl(BaseDeviceControl):
     def _serialized_(self):
         serialized = super()._serialized_
         serialized.update({'info': {
-            'sensorInName': self._sensor_in_ref().name,
-            'sensorOutName': self._sensor_out_ref().name,
-            'thresholdTempUpper': self.threshold_temp_upper,
+            '_sensor_in_ref': self._sensor_in_ref().name,
+            '_sensor_out_ref': self._sensor_out_ref().name,
+            'threshold_temp_upper': self.threshold_temp_upper,
             'tolerance': self.tolerance,
         }})
         return serialized

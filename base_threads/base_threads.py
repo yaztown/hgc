@@ -125,12 +125,12 @@ class BaseThread(threading.Thread, metaclass=MetaInstanceRegistry):
     @property
     def _serialized_(self):
         return {
-            'loopSleepTime': self.loop_sleep_time,
+            'loop_sleep_time': self.loop_sleep_time,
             'name': self.name,
             'daemon': self.daemon,
-            'isAlive': self.is_alive(),
-            'started': self._started.is_set(),
-            'exitLoop': self._exit_loop,
-            'paused': self._paused,
-            'isStopped': self._is_stopped,
+            'is_alive': self.is_alive(),
+            '_started': self._started.is_set(),
+            '_exit_loop': self._exit_loop,
+            '_paused': self._paused,
+            '_is_stopped': self._is_stopped,
         }

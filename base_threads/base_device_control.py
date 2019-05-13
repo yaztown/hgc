@@ -88,8 +88,8 @@ class BaseDeviceControl(BaseThread):
     def _serialized_(self):
         serialized = super()._serialized_
         serialized.update({
-            'relayPin': self.relay_pin,
-            'manualControl': self.manual_control,
-            'deviceOn': self._device_on,
+            'relay_pin': self.relay_pin,
+            'manual_control': self.manual_control,
+            '_device_on': self._device_on,
         })
         return serialized

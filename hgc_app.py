@@ -17,7 +17,7 @@ logging.basicConfig(level=logging.DEBUG,
                     )
 
 def main():
-    settings = load_settings_from_file()
+    settings = load_settings_from_file('hgc_settings_minimal.json')
     main_loop = MainLoop(setup_object=settings, name='main_loop', loop_sleep_time=1)
     logging.debug('Starting main_loop')
     main_loop.start()

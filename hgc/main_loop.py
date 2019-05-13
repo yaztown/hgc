@@ -13,10 +13,12 @@ import sensors, device_controls
 
 from time import sleep
 
+from pin_out import MyGPIO
 
 class MainLoop(BaseThread):
     def __init__(self, setup_object={}, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        mygpio = MyGPIO()
         self.sensors = []
         self.device_controls = []
         self.setup_object = setup_object.copy()

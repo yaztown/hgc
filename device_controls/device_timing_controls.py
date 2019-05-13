@@ -7,6 +7,8 @@ from datetime import datetime, timedelta, time
 from base_threads import BaseDeviceControl
 import logging
 
+from pin_out import MyGPIO
+
 DEFAULT_CYCLES_PER_DAY = 1
 
 class DeviceTimingControl(BaseDeviceControl):
@@ -91,11 +93,15 @@ class DeviceTimingControl(BaseDeviceControl):
         if self._device_on is not True:
             logging.debug('Turned On')
             #raise NotImplementedError('Should import the RPi.GPIO and do output the pin with the correct logic.')
+            gpio = MyGPIO()
+            gpio.output(self.relay_pin, gpio.LOW)
     
     def _off_(self):
         if self._device_on is not False:
             logging.debug('Turned Off')
             #raise NotImplementedError('Should import the RPi.GPIO and do output the pin with the correct logic.')
+            gpio = MyGPIO()
+            gpio.output(self.relay_pin, gpio.HIGH)
 
     @property
     def _serialized_(self):

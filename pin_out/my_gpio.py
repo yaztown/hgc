@@ -43,9 +43,8 @@ class MyGPIO(metaclass=Singleton):
             return
         return GPIO.output(channel, value)
     
-    def setRelayOn(self, channel):
+    def set_relay_on(self, channel):
         GPIO.output(channel, GPIO.LOW)
     
-    def setRelayOff(self, channel):
+    def set_relay_off(self, channel):
         GPIO.output(channel, GPIO.HIGH)
-    

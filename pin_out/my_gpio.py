@@ -32,13 +32,20 @@ class MyGPIO(metaclass=Singleton):
         if (channel is None) or (direction is None):
             return
         GPIO.setup(channel, direction, **kwargs)
-
-    def output(self, channel=None, value=None):
-        if (channel is None) or (value is None):
-            return
-        return GPIO.output(channel, value)
     
     def read(self, channel=None):
         if channel is None:
             return
         return GPIO.input(channel)
+    
+    def output(self, channel=None, value=None):
+        if (channel is None) or (value is None):
+            return
+        return GPIO.output(channel, value)
+    
+    def setRelayOn(self, channel):
+        GPIO.output(channel, GPIO.LOW)
+    
+    def setRelayOff(self, channel):
+        GPIO.output(channel, GPIO.HIGH)
+    

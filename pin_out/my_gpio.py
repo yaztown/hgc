@@ -6,6 +6,7 @@ Created on Monday 13/05/2019
 
 
 from RPi import GPIO
+GPIO.setwarnings(False)
 
 class Singleton(type):
     '''

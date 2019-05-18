@@ -39,8 +39,8 @@ class HumidityTemperatureSensor(BaseSensor):
     
     def __init__(self, data_pin=None, sensor='22', buff_maxlen=5,
                  save_data=False, save_data_dir='',
-                 max_accepted_humidity=100, min_accepted_humidity=0,
-                 max_accepted_temperature=100, min_accepted_temperature=0,
+                 max_accepted_humidity=80, min_accepted_humidity=15,
+                 max_accepted_temperature=80, min_accepted_temperature=15,
                  *args, **kwargs):
         '''
         data_pin                 : is the RPi GPIO pin connected to the data out of the sensor

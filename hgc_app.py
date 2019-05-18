@@ -9,10 +9,13 @@ from hgc import MainLoop, load_settings_from_file, HGC_SETTINGS, HGC_SETTINGS_TE
 
 import logging
 #TODO: Centralize the logging elsewhere
+import os
+path = os.path.abspath(__file__)
+dir_path = os.path.dirname(path)
 logging.basicConfig(level=logging.DEBUG,
                     format='%(asctime)s %(threadName)-20s %(levelname)-8s %(message)s',
                     datefmt='%m-%d %H:%M:%S',
-                    filename='log/hgc_app.log.txt',
+                    filename=os.path.join(dir_path, 'log', 'hgc_app.log.txt'),
                     filemode='w'
                     )
 

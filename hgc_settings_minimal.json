@@ -46,26 +46,26 @@
             "class_name": "DeviceTimingControl",
             "relay_pin": [23, 24],
             "time_on": {
-                "hour": 12,
+                "hour": 0,
                 "minute": 0
             },
             "duration_on": {
                 "seconds": 300
             },
-            "cycles_per_day": 48
+            "cycles_per_day": 144
         },
         {
             "name": "intake_fan_control",
             "class_name": "DeviceTimingControl",
             "relay_pin": [16, 26],
             "time_on": {
-                "hour": 12,
+                "hour": 0,
                 "minute": 0
             },
             "duration_on": {
                 "seconds": 300
             },
-            "cycles_per_day": 48
+            "cycles_per_day": 144
         }
     ]
 }

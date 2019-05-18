@@ -46,6 +46,7 @@ class DeviceTimingControl(BaseDeviceControl):
         today = datetime.now().date()
         self.next_on = datetime.combine(today, self.time_on)
         self.next_off = self.next_on + self.duration_on
+        self.setup_next_cycle()
     
     
 #     @classmethod
@@ -75,8 +76,10 @@ class DeviceTimingControl(BaseDeviceControl):
     
     
     def setup_next_cycle(self):
-        self.next_on = self.next_off + self.duration_off
-        self.next_off = self.next_on + self.duration_on
+        now = datetime.now()
+        while now >= self.next_off:
+            self.next_on = self.next_off + self.duration_off
+            self.next_off = self.next_on + self.duration_on
     
     def _auto_control(self):
         now = datetime.now()

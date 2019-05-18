@@ -8,6 +8,7 @@ from base_threads import BaseDeviceControl
 from sensors import HumidityTemperatureSensor
 import weakref
 import logging
+from pin_out import MyGPIO
 
 class DeviceHumTempSensorControl(BaseDeviceControl):
     '''
@@ -293,3 +294,104 @@ class DeviceTempCompareControl(BaseDeviceControl):
             'tolerance': self.tolerance,
         }})
         return serialized
+
+
+from time import time
+
+class SensorTimeLimitController(BaseDeviceControl):
+    '''
+    This class controls the device's On/Off using a sensor and a timed operation.
+    The controller will compare the reading to the upper threshold and the lower being the outside temp.
+    '''
+    def __init__(self, sensor_name=None,
+                 threshold_upper=28,
+                 threshold_lower=20,
+                 max_duration_on=300,
+                 min_duration_off=300,
+                 reading_type='temperature',
+                 *args, **kwargs):
+        '''
+        sensor_name             : is name of the sensor thread
+        threshold_temp_upper    : is the temperature limit that will turn on the device
+        threshold_temp_lower    : is the temperature limit that will turn off the device
+        max_duration_on         : is the maximum duration, in seconds, for the device to be on
+        min_duration_off        : is the minimum duration, in seconds, for the device to be off
+        reading_type            : 'temperature', 'humidity', 'light', 'moisture', 'co2'
+
+        '''
+        super().__init__(*args, **kwargs)
+        
+        _sensor = HumidityTemperatureSensor.get_sensor(sensor_name)
+        if _sensor is None:
+            raise ValueError('Sensor not found')
+        
+        self._sensor_ref = weakref.ref(_sensor)
+        self.threshold_upper = threshold_upper
+        self.threshold_lower = threshold_lower
+        self.max_duration_on = max_duration_on,
+        self.min_duration_off = min_duration_off
+        self.reading_type = reading_type
+        
+        # setup member variables
+        self.turn_off_time = time()
+        self.turn_on_time = None
+        self.on_cycle = False
+        
+    
+    def read_sensors(self):
+        return self._sensor_ref().get_reading()
+    
+    def check_upper_threshold(self):
+        reading = self.read_sensors()
+        sensor_value = reading[self.reading_type]
+        return (sensor_value >= self.threshold_upper)
+    
+    def check_lower_threshold(self):
+        reading = self.read_sensors()
+        sensor_value = reading[self.reading_type]
+        return (sensor_value <= self.threshold_lower)
+    
+    def _auto_control(self):
+        if self.on_cycle:
+            if self.check_lower_threshold() or ((time() - self.turn_on_time) >= self.max_duration_on):
+                self.turn_off()
+                self.turn_off_time = time()
+                self.on_cycle = False
+                self.turn_on_time = None
+        elif self.check_upper_threshold() and ((time() - self.turn_off_time) > self.min_duration_off):
+            self.turn_on()
+            self.turn_on_time = time()
+            self.on_cycle = True
+            self.turn_off_time = None
+#         else:
+#             self.turn_off()
+#             self.turn_off_time = time()
+#             self.on_cycle = False
+#             self.turn_on_time = None
+    
+    def _on_(self):
+        if self._device_on is not True:
+            sensor_value = self._sensor_ref().get_reading()[self.reading_type]
+            logging.debug('Turned On at {}: {:.1f}'.format(self.reading_type, sensor_value))
+            MyGPIO().set_relay_on(self.relay_pin)
+
+    
+    def _off_(self):
+        if self._device_on is not False:
+            sensor_value = self._sensor_ref().get_reading()[self.reading_type]
+            logging.debug('Turned Off at {}: {:.1f}'.format(self.reading_type, sensor_value))
+            MyGPIO().set_relay_off(self.relay_pin)
+    
+    @property
+    def _serialized_(self):
+        serialized = super()._serialized_
+        serialized.update({'info': {
+            '_sensor': self._sensor_in_ref().name,
+            'threshold_upper': self.threshold_upper,
+            'threshold_lower': self.threshold_lower,
+            'max_duration_on': self.max_duration_on,
+            'min_duration_off': self.min_duration_off,
+            'reading_type': self.reading_type,
+        }})
+        return serialized
+

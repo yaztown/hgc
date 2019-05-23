@@ -45,10 +45,10 @@ class BaseThread(threading.Thread, metaclass=MetaInstanceRegistry):
         self.loop_sleep_time = loop_sleep_time
         
         # Flag to exit thread's runloop
-        self._exit_loop = False
+        self._exit_loop = threading.Event()
         
         # Flag to pause thread
-        self._paused = False
+        self._paused = threading.Event()
         
         # Explicitly using Lock over RLock since the use of self._paused
         # break reentrancy anyway, and I believe using Lock could allow
@@ -69,10 +69,10 @@ class BaseThread(threading.Thread, metaclass=MetaInstanceRegistry):
     # This thread's control methods
     def run(self):
         # TODO: Add a run_setup() somewhere before the loop
-        while not self._exit_loop:
+        while not self._exit_loop.is_set():
             with self._pause_condition:
                 # TODO: Can I change this while to if?!
-                while self._paused:
+                while self._paused.is_set():
                     self._pause_condition.wait()
                 # thread should do the work if not paused
                 self.__work__()
@@ -82,11 +82,11 @@ class BaseThread(threading.Thread, metaclass=MetaInstanceRegistry):
         '''
         This will pause the thread until it is resumed by calling the resume() method
         '''
-        if not self._paused:
-            self._paused = True
+        if not self._paused.is_set():
+            self._paused.set()
             # If in sleep, we acquire immediately, otherwise we wait for thread
             # to release condition. In race, worker will still see self._paused
-            # and begin waiting until it's set back to False
+            # and begin waiting until self._paused is cleared
             if self.is_alive():
                 # Notify so thread will wake after lock released
                 self._pause_condition.acquire()
@@ -97,8 +97,8 @@ class BaseThread(threading.Thread, metaclass=MetaInstanceRegistry):
         This will resume the thread after being paused.
         Note: It will not resume a stopped thread.
         '''
-        if self._paused:
-            self._paused = False
+        if self._paused.is_set():
+            self._paused.clear()
             if self.is_alive() and self._pause_condition.acquire_count > 0:
                 # Notify so thread will wake after lock released
                 self._pause_condition.notify()
@@ -111,8 +111,8 @@ class BaseThread(threading.Thread, metaclass=MetaInstanceRegistry):
         This will stop the thread perminently
         similar to: kill()
         '''
-        self._exit_loop = True
-        if self.is_alive() and self._paused:
+        self._exit_loop.set()
+        if self.is_alive() and self._paused.is_set():
             self.resume()
     
     def kill(self):
@@ -130,7 +130,7 @@ class BaseThread(threading.Thread, metaclass=MetaInstanceRegistry):
             'daemon': self.daemon,
             'is_alive': self.is_alive(),
             '_started': self._started.is_set(),
-            '_exit_loop': self._exit_loop,
-            '_paused': self._paused,
+            '_exit_loop': self._exit_loop.is_set(),
+            '_paused': self._paused.is_set(),
             '_is_stopped': self._is_stopped,
         }

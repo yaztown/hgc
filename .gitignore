@@ -7,6 +7,6 @@ __pycache__/
 .DS_Store
 Adafruit_DHT/
 notes/
-log/*.txt
+log/*
 weather_data*.txt
 www/

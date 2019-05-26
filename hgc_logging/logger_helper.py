@@ -15,7 +15,7 @@ default_log_dirname = os.path.join(app_dirname, 'log')
 default_file_name='hgc.log'
 
 
-def get_console_handler(level=logging.INFO):
+def get_console_handler(level=logging.DEBUG):
     # Create handler
     hdl_console = logging.StreamHandler()
     hdl_console.setLevel(level)
@@ -41,7 +41,7 @@ def get_logger(name, level=logging.DEBUG, log_dir=None, file_name=None):
     logger = logging.getLogger(name)
     logger.setLevel(level)
     # Add handlers to the logger
-    logger.addHandler(get_console_handler())
+    logger.addHandler(get_console_handler(level))
     logger.addHandler(get_file_handler(level, log_dir, file_name))
     return logger
 

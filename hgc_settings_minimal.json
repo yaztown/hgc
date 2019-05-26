@@ -52,7 +52,7 @@
             "duration_on": {
                 "seconds": 300
             },
-            "cycles_per_day": 144
+            "cycles_per_day": 96
         },
         {
             "name": "intake_fan_control",

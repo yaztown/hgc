@@ -12,9 +12,9 @@ from device_controls import DeviceHumidityCompareControl, DeviceTempCompareContr
 
 from functools import update_wrapper
 
-import logging
+from hgc_logging import get_logger
 
-logger = logging.getLogger('netserve.request')
+logger = get_logger()
 
 
 

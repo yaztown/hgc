@@ -5,15 +5,17 @@ Created on Friday 29/06/2018
 '''
 
 from netserve import HGCServer, SimpleHTTPAPIRequestHandler
-
+from time import sleep
+from pin_out import MyGPIO
+from hgc_logging import get_logger
 from base_threads import BaseThread
-# from sensors import HumidityTemperatureSensor
-# from device_controls import DeviceTimingControl, DeviceHumTempSensorControl, DeviceSensorsCompareControl
+
 import sensors, device_controls
 
-from time import sleep
+import threading
 
-from pin_out import MyGPIO
+
+logger = get_logger()
 
 class MainLoop(BaseThread):
     def __init__(self, setup_object={}, *args, **kwargs):
@@ -22,7 +24,8 @@ class MainLoop(BaseThread):
         self.sensors = []
         self.device_controls = []
         self.setup_object = setup_object.copy()
-        self._setup_system()
+        self.httpd = None
+        logger.debug('Initialized thread: {}'.format(self.name))
     
     def _setup_system(self):
         self._setup_sensors()
@@ -55,7 +58,7 @@ class MainLoop(BaseThread):
                 device = DeviceControlClass(**device_setup)
                 self.device_controls.append(device)
     
-    def setup_logic(self):
+    def start_threads(self):
         for sensor in self.sensors:
             sensor.start()
         sleep(3)
@@ -73,17 +76,37 @@ class MainLoop(BaseThread):
         HTTP_PORT = 8000
         
         server_address = (HTTP_IP, HTTP_PORT)
-        httpd = server_class(server_address, handler_class, self)
+        self.httpd = server_class(server_address, handler_class, self)
         print('Starting the server on address: http://{ip}:{port}'.format(ip=HTTP_IP, port=HTTP_PORT))
-        httpd.serve_forever()
+        try:
+#             self.httpd.serve_forever()
+            threading.Thread(target=self.httpd.serve_forever).start()
+        except:
+            pass
     
-    def start(self):
-        self.setup_logic()
+    #TODO: remove this start method since it clashes with the Thread classes method name
+    def _setup_loop(self):
+#         BaseThread._setup_loop(self)
+        self._setup_system()
+        self.start_threads()
         self.start_server()
-        super().start()
+
+    def __loop__(self):
+#         logger.debug('from mainLoop __loop__()')
+        sleep(2)
     
+    def stop_threads(self):
+        self.httpd.shutdown()
+        for device_control in self.device_controls:
+            device_control.stop()
+            device_control.join()
+        for sensor in self.sensors:
+            sensor.stop()
+            sensor.join()
+    
+    def clean_up(self):
+        self.stop_threads()
+        super().clean_up()
+        
     def get_status(self):
         return True
-
-    def __work__(self):
-        sleep(2)

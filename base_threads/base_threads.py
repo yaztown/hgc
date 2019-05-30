@@ -15,11 +15,12 @@ file: base_threads.py
 
 from .class_instance_registry import MetaInstanceRegistry
 from time import sleep
+from hgc_logging import get_logger
 import threading
-
 
 DEFAULT_SLEEP_TIME = 2
 
+logger = get_logger()
 
 class BaseThread(threading.Thread, metaclass=MetaInstanceRegistry):
     '''
@@ -59,24 +60,34 @@ class BaseThread(threading.Thread, metaclass=MetaInstanceRegistry):
         self._pause_condition = threading.Condition(threading.Lock())
         self._pause_condition.acquire_count = 0
     
-    def __work__(self):
+    def _setup_loop(self):
+        '''
+        Override this methods to customize work to be done by the thread just before the loop.
+        '''
+        pass
+    
+    def __loop__(self):
         '''
         This method should be implemented in subclasses and is where the threads
-        repeating process goes (without the loop since it is in the run() method.
+        repeating process goes (without the while-loop since it is in the run() method.
         '''
         raise NotImplementedError('must implement in subclasses')
     
     # This thread's control methods
     def run(self):
         # TODO: Add a run_setup() somewhere before the loop
+        logger.debug('Starting run() on thread: {}'.format(self.name))
+        self._setup_loop()
         while not self._exit_loop.is_set():
             with self._pause_condition:
                 # TODO: Can I change this while to if?!
                 while self._paused.is_set():
                     self._pause_condition.wait()
-                # thread should do the work if not paused
-                self.__work__()
+                # thread should loop if not paused
+                self.__loop__()
             sleep(self.loop_sleep_time)
+        self.clean_up()
+        logger.debug('Exiting thread: {}'.format(self.name))
     
     def pause(self):
         '''
@@ -84,6 +95,7 @@ class BaseThread(threading.Thread, metaclass=MetaInstanceRegistry):
         '''
         if not self._paused.is_set():
             self._paused.set()
+            logger.debug('Paused thread: {}'.format(self.name))
             # If in sleep, we acquire immediately, otherwise we wait for thread
             # to release condition. In race, worker will still see self._paused
             # and begin waiting until self._paused is cleared
@@ -105,12 +117,14 @@ class BaseThread(threading.Thread, metaclass=MetaInstanceRegistry):
                 # Now we release the lock
                 self._pause_condition.release()
                 self._pause_condition.acquire_count -= 1
+            logger.debug('Resumed thread: {}'.format(self.name))
     
     def stop(self):
         '''
         This will stop the thread perminently
         similar to: kill()
         '''
+        logger.debug('Stopping thread: {}'.format(self.name))
         self._exit_loop.set()
         if self.is_alive() and self._paused.is_set():
             self.resume()
@@ -121,6 +135,13 @@ class BaseThread(threading.Thread, metaclass=MetaInstanceRegistry):
         similar to: stop()
         '''
         self.stop()
+    
+    def clean_up(self):
+        '''
+        When overloading, make sure to call the super().clean_up()
+        at the end of the implementation.
+        '''
+        pass
     
     @property
     def _serialized_(self):

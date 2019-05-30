@@ -4,7 +4,7 @@ Created on Saturday 25/05/2019
 @author: yaztown
 '''
 
-from hgc_logging.format_strings import fmt_debug, fmt_info, fmt_date_small
+from hgc_logging import format_strings
 
 import logging
 import os
@@ -20,7 +20,7 @@ def get_console_handler(level=logging.DEBUG):
     hdl_console = logging.StreamHandler()
     hdl_console.setLevel(level)
     # Create formatters
-    formatter_info = logging.Formatter(fmt_info, datefmt=fmt_date_small)
+    formatter_info = logging.Formatter(format_strings.fmt_simple_debug, datefmt=format_strings.fmt_date_small)
     hdl_console.setFormatter(formatter_info)
     return hdl_console
 
@@ -32,17 +32,18 @@ def get_file_handler(level=logging.DEBUG, log_dir=None, file_name=None):
     hdl_file = logging.FileHandler(os.path.join(log_dir, file_name), mode='w')
     hdl_file.setLevel(level)
     # Create formatters
-    formatter_debug = logging.Formatter(fmt_debug, datefmt=fmt_date_small)
+    formatter_debug = logging.Formatter(format_strings.fmt_simple_debug, datefmt=format_strings.fmt_date_small)
     hdl_file.setFormatter(formatter_debug)
     return hdl_file
 
-def get_logger(name, level=logging.DEBUG, log_dir=None, file_name=None):
+def get_logger(name='hgc', level=logging.DEBUG, log_dir=None, file_name=None):
     # Create a custom logger
     logger = logging.getLogger(name)
     logger.setLevel(level)
     # Add handlers to the logger
-    logger.addHandler(get_console_handler(level))
-    logger.addHandler(get_file_handler(level, log_dir, file_name))
+    if not logger.hasHandlers():
+        logger.addHandler(get_console_handler(level))
+        logger.addHandler(get_file_handler(level, log_dir, file_name))
     return logger
 
 

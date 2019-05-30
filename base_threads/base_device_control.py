@@ -27,7 +27,7 @@ class BaseDeviceControl(BaseThread):
         
         self._device_on = None     # Flag for Device power status
     
-    def __work__(self):
+    def __loop__(self):
         if not self.manual_control:
             self._auto_control()
     

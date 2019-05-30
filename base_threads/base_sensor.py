@@ -23,7 +23,7 @@ class BaseSensor(BaseThread):
         super().__init__(*args, **kwargs)
         self.sensor = sensor
     
-    def __work__(self):
+    def __loop__(self):
         self._read_sensor()
     
     def _read_sensor(self):

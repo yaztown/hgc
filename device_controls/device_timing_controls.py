@@ -5,9 +5,10 @@ Created on Tuesday 03/07/2018
 '''
 from datetime import datetime, timedelta, time
 from base_threads import BaseDeviceControl
-import logging
-
 from pin_out import MyGPIO
+from hgc_logging import get_logger
+
+logger = get_logger()
 
 DEFAULT_CYCLES_PER_DAY = 1
 
@@ -94,12 +95,12 @@ class DeviceTimingControl(BaseDeviceControl):
     
     def _on_(self):
         if self._device_on is not True:
-            logging.debug('Turned On')
+            logger.debug('Turned On.  Next Off @ {}'.format(self.next_off))
             MyGPIO().set_relay_on(self.relay_pin)
     
     def _off_(self):
         if self._device_on is not False:
-            logging.debug('Turned Off')
+            logger.debug('Turned Off.  Next On @ {}'.format(self.next_on))
             MyGPIO().set_relay_off(self.relay_pin)
 
     @property

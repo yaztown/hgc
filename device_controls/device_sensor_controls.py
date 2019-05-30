@@ -4,11 +4,14 @@ Created on Tuesday 03/07/2018
 @author: yaztown
 '''
 
+import weakref
+
 from base_threads import BaseDeviceControl
 from sensors import HumidityTemperatureSensor
-import weakref
-import logging
 from pin_out import MyGPIO
+from hgc_logging import get_logger
+
+logger = get_logger()
 
 class DeviceHumTempSensorControl(BaseDeviceControl):
     '''
@@ -67,12 +70,12 @@ class DeviceHumTempSensorControl(BaseDeviceControl):
     
     def _on_(self):
         if self._device_on is not True:
-            logging.debug('Turned On at Humidity: {humidity}\tTemperature: {temperature}'.format(**self._sensor_ref().get_reading()))
+            logger.debug('Turned On at Humidity: {humidity}\tTemperature: {temperature}'.format(**self._sensor_ref().get_reading()))
 #         raise NotImplementedError('Should import the RPi.GPIO and do output the pin with the correct logic.')
     
     def _off_(self):
         if self._device_on is not False:
-            logging.debug('Turned Off at Humidity: {humidity}\tTemperature: {temperature}'.format(**self._sensor_ref().get_reading()))
+            logger.debug('Turned Off at Humidity: {humidity}\tTemperature: {temperature}'.format(**self._sensor_ref().get_reading()))
 #         raise NotImplementedError('Should import the RPi.GPIO and do output the pin with the correct logic.')
 
 
@@ -134,12 +137,12 @@ class DeviceSensorsCompareControl(BaseDeviceControl):
     
     def _on_(self):
         if self._device_on is not True:
-            logging.debug('Turned On at Humidity: {humidity:.1f}\tTemperature: {temperature:.1f}'.format(**self._sensor_in_ref().get_reading()))
+            logger.debug('Turned On at Humidity: {humidity:.1f}\tTemperature: {temperature:.1f}'.format(**self._sensor_in_ref().get_reading()))
             #raise NotImplementedError('Should import the RPi.GPIO and do output the pin with the correct logic.')
     
     def _off_(self):
         if self._device_on is not False:
-            logging.debug('Turned Off at Humidity: {humidity:.1f}\tTemperature: {temperature:.1f}'.format(**self._sensor_in_ref().get_reading()))
+            logger.debug('Turned Off at Humidity: {humidity:.1f}\tTemperature: {temperature:.1f}'.format(**self._sensor_in_ref().get_reading()))
             #raise NotImplementedError('Should import the RPi.GPIO and do output the pin with the correct logic.')
 
 
@@ -199,12 +202,12 @@ class DeviceHumidityCompareControl(BaseDeviceControl):
     
     def _on_(self):
         if self._device_on is not True:
-            logging.debug('Turned On at Humidity: {humidity:.1f}\tTemperature: {temperature:.1f}'.format(**self._sensor_in_ref().get_reading()))
+            logger.debug('Turned On at Humidity: {humidity:.1f}\tTemperature: {temperature:.1f}'.format(**self._sensor_in_ref().get_reading()))
             #raise NotImplementedError('Should import the RPi.GPIO and do output the pin with the correct logic.')
     
     def _off_(self):
         if self._device_on is not False:
-            logging.debug('Turned Off at Humidity: {humidity:.1f}\tTemperature: {temperature:.1f}'.format(**self._sensor_in_ref().get_reading()))
+            logger.debug('Turned Off at Humidity: {humidity:.1f}\tTemperature: {temperature:.1f}'.format(**self._sensor_in_ref().get_reading()))
             #raise NotImplementedError('Should import the RPi.GPIO and do output the pin with the correct logic.')
 
     @property
@@ -276,12 +279,12 @@ class DeviceTempCompareControl(BaseDeviceControl):
     
     def _on_(self):
         if self._device_on is not True:
-            logging.debug('Turned On at Humidity: {humidity:.1f}\tTemperature: {temperature:.1f}'.format(**self._sensor_in_ref().get_reading()))
+            logger.debug('Turned On at Humidity: {humidity:.1f}\tTemperature: {temperature:.1f}'.format(**self._sensor_in_ref().get_reading()))
             #raise NotImplementedError('Should import the RPi.GPIO and do output the pin with the correct logic.')
     
     def _off_(self):
         if self._device_on is not False:
-            logging.debug('Turned Off at Humidity: {humidity:.1f}\tTemperature: {temperature:.1f}'.format(**self._sensor_in_ref().get_reading()))
+            logger.debug('Turned Off at Humidity: {humidity:.1f}\tTemperature: {temperature:.1f}'.format(**self._sensor_in_ref().get_reading()))
             #raise NotImplementedError('Should import the RPi.GPIO and do output the pin with the correct logic.')
     
     @property
@@ -372,14 +375,14 @@ class SensorTimeLimitController(BaseDeviceControl):
     def _on_(self):
         if self._device_on is not True:
             sensor_value = self._sensor_ref().get_reading()[self.reading_type]
-            logging.debug('Turned On at {}: {:.1f}'.format(self.reading_type, sensor_value))
+            logger.debug('Turned On at {}: {:.1f}'.format(self.reading_type, sensor_value))
             MyGPIO().set_relay_on(self.relay_pin)
 
     
     def _off_(self):
         if self._device_on is not False:
             sensor_value = self._sensor_ref().get_reading()[self.reading_type]
-            logging.debug('Turned Off at {}: {:.1f}'.format(self.reading_type, sensor_value))
+            logger.debug('Turned Off at {}: {:.1f}'.format(self.reading_type, sensor_value))
             MyGPIO().set_relay_off(self.relay_pin)
     
     @property

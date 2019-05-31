@@ -4,15 +4,13 @@
             "name": "ht_out",
             "class_name": "HumidityTemperatureSensor",
             "data_pin": 4,
-            "save_data": true,
-            "save_data_dir": "log"
+            "save_data": true
         },
         {
             "name": "ht_in",
             "class_name": "HumidityTemperatureSensor",
             "data_pin": 17,
-            "save_data": true,
-            "save_data_dir": "log"
+            "save_data": true
         }
     ],
     "device_controls": [

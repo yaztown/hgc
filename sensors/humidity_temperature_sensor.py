@@ -12,7 +12,7 @@ from datetime import datetime
 from os import path
 import threading
 import Adafruit_DHT
-# import logging
+from hgc_logging import default_log_dirname
 
 
 HT_SENSORS = {
@@ -38,7 +38,7 @@ class HumidityTemperatureSensor(BaseSensor):
 
     
     def __init__(self, data_pin=None, sensor='22', buff_maxlen=5,
-                 save_data=False, save_data_dir='',
+                 save_data=False, save_data_dir=default_log_dirname,
                  max_accepted_humidity=80, min_accepted_humidity=15,
                  max_accepted_temperature=80, min_accepted_temperature=15,
                  *args, **kwargs):

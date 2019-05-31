@@ -36,14 +36,14 @@ def get_file_handler(level=logging.DEBUG, log_dir=None, file_name=None):
     hdl_file.setFormatter(formatter_debug)
     return hdl_file
 
-def get_logger(name='hgc', level=logging.DEBUG, log_dir=None, file_name=None):
+def get_logger(name='hgc', level=logging.DEBUG, log_dir=None, log_file=None):
     # Create a custom logger
     logger = logging.getLogger(name)
     logger.setLevel(level)
     # Add handlers to the logger
     if not logger.hasHandlers():
         logger.addHandler(get_console_handler(level))
-        logger.addHandler(get_file_handler(level, log_dir, file_name))
+        logger.addHandler(get_file_handler(level, log_dir, log_file))
     return logger
 
 

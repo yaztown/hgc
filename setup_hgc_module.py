@@ -1,3 +1,4 @@
+import setuptools
 from setuptools import setup
 
 setup(name='hgc',
@@ -9,4 +10,5 @@ setup(name='hgc',
 		long_description='This is the HomeGrownCenter (hgc) package.',
 		licence='MIT',
 		packages=['hgc'],
+		test_suite='tests',
 		zip_safe=False)

@@ -24,12 +24,12 @@ def get_console_handler(level=logging.DEBUG):
     hdl_console.setFormatter(formatter_info)
     return hdl_console
 
-def get_file_handler(level=logging.DEBUG, log_dir=None, file_name=None):
-    if file_name is None:
-        file_name = default_file_name
+def get_file_handler(level=logging.DEBUG, log_dir=None, log_file=None):
+    if log_file is None:
+        log_file = default_file_name
     if log_dir is None:
         log_dir = default_log_dirname
-    hdl_file = logging.FileHandler(os.path.join(log_dir, file_name), mode='w')
+    hdl_file = logging.FileHandler(os.path.join(log_dir, log_file), mode='w')
     hdl_file.setLevel(level)
     # Create formatters
     formatter_debug = logging.Formatter(format_strings.fmt_simple_debug, datefmt=format_strings.fmt_date_small)

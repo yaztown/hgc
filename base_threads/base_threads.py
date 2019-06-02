@@ -143,6 +143,30 @@ class BaseThread(threading.Thread, metaclass=MetaInstanceRegistry):
         '''
         pass
     
+    @classmethod
+    def _get_instances(cls, recursive=True):
+        """Get all instances of this class in the registry. If recursive=True
+        search subclasses recursively"""
+        instances = list(cls._instances)
+        if recursive:
+            for Child in cls.__subclasses__():
+                instances += Child._get_instances(recursive=recursive)
+        
+        # Remove duplicates from multiple inheritance.
+        return list(set(instances))
+
+    @classmethod
+    def _get_instance_by_uuid(cls, recursive=True, uuid=None):
+        """Get all instances of this class in the registry. If recursive=True
+        search subclasses recursively"""
+        instances = list(cls._instances)
+        if recursive:
+            for Child in cls.__subclasses__():
+                instances += Child._get_instances(recursive=recursive)
+        
+        # Remove duplicates from multiple inheritance.
+        return list(set(instances))
+
     @property
     def _serialized_(self):
         return {

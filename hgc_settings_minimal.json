@@ -1,13 +1,13 @@
 {
     "sensors": [
         {
-            "name": "ht_out",
+            "name": "hygro_ambient",
             "class_name": "HumidityTemperatureSensor",
             "data_pin": 4,
             "save_data": true
         },
         {
-            "name": "ht_in",
+            "name": "hygro_in",
             "class_name": "HumidityTemperatureSensor",
             "data_pin": 17,
             "save_data": true
@@ -15,7 +15,7 @@
     ],
     "device_controls": [
         {
-            "name": "light_control",
+            "name": "light",
             "class_name": "DeviceTimingControl",
             "relay_pin": [5, 6],
             "time_on": {
@@ -27,20 +27,20 @@
             "cycles_per_day": 1
         },
         {
-            "name": "irrigation_control",
+            "name": "irrigation",
             "class_name": "DeviceTimingControl",
             "relay_pin": [22, 27],
             "time_on": {
-                "hour": 11,
-                "minute": 57
+                "hour": 5,
+                "minute": 50
             },
             "duration_on": {
-                "seconds": 50
+                "minutes": 15
             },
-            "cycles_per_day": 0.5
+            "cycles_per_day": 3
         },
         {
-            "name": "exhaust_fan_control",
+            "name": "exhaust_fan",
             "class_name": "DeviceTimingControl",
             "relay_pin": [23, 24],
             "time_on": {
@@ -53,7 +53,7 @@
             "cycles_per_day": 96
         },
         {
-            "name": "intake_fan_control",
+            "name": "intake_fan",
             "class_name": "DeviceTimingControl",
             "relay_pin": [16, 26],
             "time_on": {

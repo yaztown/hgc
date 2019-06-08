@@ -1,9 +1,4 @@
 '''
-Created on Tuesday 03/07/2018
-
-@author: yaztown
-'''
-'''
 Created on Monday 02/07/2018
 
 file: base_threads.py
@@ -13,7 +8,8 @@ file: base_threads.py
 
 #device_control_base
 
-from .class_instance_registry import MetaInstanceRegistry
+from hgc.core.metaclasses import MetaInstanceRegistry
+from uuid import uuid4
 from time import sleep
 from hgc_logging import get_logger
 import threading
@@ -28,7 +24,7 @@ class BaseThread(threading.Thread, metaclass=MetaInstanceRegistry):
     
     (Development of this class has Raspberry Pi in mind.)
     '''
-    def __init__(self, loop_sleep_time=DEFAULT_SLEEP_TIME, *args, **kwargs):
+    def __init__(self, loop_sleep_time=DEFAULT_SLEEP_TIME, uuid=uuid4().hex, *args, **kwargs):
         '''
         loop_sleep_time: is the time for the thread to sleep before looping again; default = DEFAULT_SLEEP_TIME seconds.
         name           : is a general name for the thread.
@@ -44,6 +40,12 @@ class BaseThread(threading.Thread, metaclass=MetaInstanceRegistry):
 #         super().__init__(name=name, group=group, target=target, args=args, kwargs=kwargs, daemon=daemon)
         super().__init__(*args, **kwargs)
         self.loop_sleep_time = loop_sleep_time
+        
+        # Check to see if passed uuid is unique to us. 
+        if self.__class__._get_instance_by_uuid(uuid) is None:
+            self.uuid = uuid
+        else:
+            self.uuid = uuid4().hex
         
         # Flag to exit thread's runloop
         self._exit_loop = threading.Event()
@@ -156,20 +158,21 @@ class BaseThread(threading.Thread, metaclass=MetaInstanceRegistry):
         return list(set(instances))
 
     @classmethod
-    def _get_instance_by_uuid(cls, recursive=True, uuid=None):
-        """Get all instances of this class in the registry. If recursive=True
-        search subclasses recursively"""
-        instances = list(cls._instances)
-        if recursive:
-            for Child in cls.__subclasses__():
-                instances += Child._get_instances(recursive=recursive)
-        
-        # Remove duplicates from multiple inheritance.
-        return list(set(instances))
+    def _get_instance_by_uuid(cls, uuid=None, recursive=True):
+        """Get all instances of this class in the registry.
+        If recursive=True search subclasses recursively"""
+        instances = cls._get_instances(recursive)
+        obj = None
+        for inst in instances:
+            if inst.uuid == uuid:
+                obj = inst
+                break
+        return obj
 
     @property
     def _serialized_(self):
         return {
+            'uuid': self.uuid,
             'loop_sleep_time': self.loop_sleep_time,
             'name': self.name,
             'daemon': self.daemon,

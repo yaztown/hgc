@@ -7,9 +7,10 @@ Created on Saturday 01/06/2019
 from flask import send_from_directory#, request, redirect, url_for
 from hgc_net import flask_app
 
+from . import api_routes
+
 
 @flask_app.route('/')
-@flask_app.route('index')
 def index():
     return flask_app.send_static_file('index.html')
 
@@ -17,6 +18,8 @@ def index():
 @flask_app.route('/<path:path>')
 def send_file(path):
     return send_from_directory(flask_app.static_folder, path)
+
+
 
 
 # @flask_app.route('/login', methods=['POST', 'GET'])

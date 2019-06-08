@@ -12,7 +12,7 @@ import hgc_logging
 logger = hgc_logging.get_logger()
 
 def main():
-    settings = load_settings_from_file('hgc_settings_minimal.json')
+    settings = load_settings_from_file('settings/hgc_settings_minimal.json')
     main_loop = MainLoop(setup_object=settings, name='main_loop', loop_sleep_time=1)
     logger.debug('Starting main_loop')
     register_exit_signal_handler()

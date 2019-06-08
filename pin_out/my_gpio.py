@@ -4,20 +4,10 @@ Created on Monday 13/05/2019
 @author: yaztown
 '''
 
-
+from hgc.core.metaclasses import Singleton
 from RPi import GPIO
+
 GPIO.setwarnings(False)
-
-class Singleton(type):
-    '''
-    classdocs
-    '''
-    _instances = {}
-    def __call__(cls, *args, **kwargs):
-        if cls not in cls._instances:
-            cls._instances[cls] = super(Singleton, cls).__call__(*args, **kwargs)
-        return cls._instances[cls]
-
 
 class MyGPIO(metaclass=Singleton):
     OUT = GPIO.OUT

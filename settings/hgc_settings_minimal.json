@@ -7,16 +7,16 @@
             "save_data": true
         },
         {
-            "name": "hygro_in",
+            "name": "hygro_T1",
             "class_name": "HumidityTemperatureSensor",
             "data_pin": 17,
             "save_data": true
         }
     ],
-    "device_controls": [
+    "controllers": [
         {
             "name": "light",
-            "class_name": "DeviceTimingControl",
+            "class_name": "TimingController",
             "relay_pin": [5, 6],
             "time_on": {
                 "hour": 12
@@ -28,7 +28,7 @@
         },
         {
             "name": "irrigation",
-            "class_name": "DeviceTimingControl",
+            "class_name": "TimingController",
             "relay_pin": [22, 27],
             "time_on": {
                 "hour": 5,
@@ -41,7 +41,7 @@
         },
         {
             "name": "exhaust_fan",
-            "class_name": "DeviceTimingControl",
+            "class_name": "TimingController",
             "relay_pin": [23, 24],
             "time_on": {
                 "hour": 0,
@@ -54,7 +54,7 @@
         },
         {
             "name": "intake_fan",
-            "class_name": "DeviceTimingControl",
+            "class_name": "TimingController",
             "relay_pin": [16, 26],
             "time_on": {
                 "hour": 0,

@@ -10,3 +10,4 @@ notes/
 log/*
 weather_data*.txt
 www/
+venv/

@@ -5,6 +5,7 @@ Created on Saturday 01/06/2019
 '''
 
 from flask import Flask, request
+from flask_cors import CORS
 from hgc_logging import get_logger
 import os
 from flask_jsonrpc import JSONRPC
@@ -23,28 +24,37 @@ www_path = os.path.join(app_dir_path, WWW_FOLDER)
 the main flask app
 '''
 flask_app = Flask(__name__, static_url_path='', static_folder=www_path)
+CORS(flask_app)
+# cors = CORS(app, resources={r"/api/*": {"origins": "*"}})
 '''
 the main flask json_rpc
 '''
-flask_json_rpc = JSONRPC(flask_app, '/api/jsonrpc')
+flask_json_rpc = JSONRPC(flask_app, '/jsonrpc', enable_web_browsable_api=True)
 
-'''
-the main routes
-'''
-from hgc_net import routes
-
-
-'''
-the main server control methods
-'''
-def runServer(host=flask_host, port=flask_port, debug=False):
-    flask_app.run(host=host, port=port, debug=debug)
-
-def stopServer():
-    shutdown_func = request.environ.get('werkzeug.server.shutdown')
-    if shutdown_func is None:
-        raise RuntimeError('Not running with the Werkzeug Server')
-    shutdown_func()
+# '''
+# the main server control methods
+# '''
+# def startFlaskServer(host=flask_host, port=flask_port, debug=False):
+#     flask_host = host
+#     flask_port = port
+#     flask_app.run(host=host, port=port, debug=debug)
+# 
+# 
+# def shutdown_server():
+#     func = request.environ.get('werkzeug.server.shutdown')
+#     if func is None:
+#         raise RuntimeError('Not running with the Werkzeug Server')
+#     func()
+# 
+# @flask_app.route('/shutdown', methods=['POST'])
+# def shutdown():
+#     shutdown_server()
+#     return 'Server shutting down...'
+# 
+# def stopFlaskServer():
+#     import requests
+#     _ = requests.post('http://localhost:{}/shutdown'.format(flask_port))
+#     
 
 
 '''

@@ -4,15 +4,22 @@ Created on Friday 29/06/2018
 @author: yaztown
 '''
 
-from netserve import HGCServer, SimpleHTTPAPIRequestHandler
+# from netserve import HGCServer, SimpleHTTPAPIRequestHandler
 from time import sleep
 from pin_out import MyGPIO
 from hgc_logging import get_logger
 from base_threads import BaseThread
 
-import sensors, device_controls
+# from hgc_net import routes, startFlaskServer, stopFlaskServer
+from hgc_net import flask_app
+from hgc_net.wsgiserver import WSThread
 
-import threading
+from . import routes
+
+import sensors
+import controllers
+
+# import threading
 
 
 logger = get_logger()
@@ -20,16 +27,16 @@ logger = get_logger()
 class MainLoop(BaseThread):
     def __init__(self, setup_object={}, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        mygpio = MyGPIO()
+        _ = MyGPIO()
         self.sensors = []
-        self.device_controls = []
+        self.controllers = []
         self.setup_object = setup_object.copy()
         self.httpd = None
         logger.debug('Initialized thread: {}'.format(self.name))
     
     def _setup_system(self):
         self._setup_sensors()
-        self._setup_devices()
+        self._setup_controllers()
     
     def _setup_sensors(self):
         sensors_setup = self.setup_object.get('sensors', []).copy()
@@ -44,62 +51,47 @@ class MainLoop(BaseThread):
                 sensor = SensorClass(**sensor_setup)
                 self.sensors.append(sensor)
     
-    def _setup_devices(self):
-        devices_setup = self.setup_object.get('device_controls', []).copy()
-        for device_setup in devices_setup:
-            DeviceControlClass = None
-            device = None
-            class_name = device_setup.pop('class_name')
+    def _setup_controllers(self):
+        controllers_setup = self.setup_object.get('controllers', []).copy()
+        for controller_setup in controllers_setup:
+            ControllerClass = None
+            controller = None
+            class_name = controller_setup.pop('class_name')
             
-            if hasattr(device_controls, class_name):
-                DeviceControlClass = getattr(device_controls, class_name)
+            if hasattr(controllers, class_name):
+                ControllerClass = getattr(controllers, class_name)
             
-            if DeviceControlClass is not None:
-                device = DeviceControlClass(**device_setup)
-                self.device_controls.append(device)
+            if ControllerClass is not None:
+                controller = ControllerClass(**controller_setup)
+                self.controllers.append(controller)
     
     def start_threads(self):
         for sensor in self.sensors:
             sensor.start()
         sleep(3)
-        for device_control in self.device_controls:
-            device_control.start()
+        for controller in self.controllers:
+            controller.start()
     
-    def start_server(self):
-        '''
-        This is the function that will start the server and return the httpd
-        '''
-        #TODO: move the following assignments to the settings file
-        server_class = HGCServer
-        handler_class = SimpleHTTPAPIRequestHandler
-        HTTP_IP = '0.0.0.0'
-        HTTP_PORT = 8000
-        
-        server_address = (HTTP_IP, HTTP_PORT)
-        self.httpd = server_class(server_address, handler_class, self)
-        print('Starting the server on address: http://{ip}:{port}'.format(ip=HTTP_IP, port=HTTP_PORT))
-        try:
-#             self.httpd.serve_forever()
-            threading.Thread(target=self.httpd.serve_forever).start()
-        except:
-            pass
+    def start_wsgiserver(self):
+        self.httpd = WSThread(flask_app, name='wsgiserver')
+        self.httpd.start()
     
-    #TODO: remove this start method since it clashes with the Thread classes method name
     def _setup_loop(self):
-#         BaseThread._setup_loop(self)
         self._setup_system()
         self.start_threads()
-        self.start_server()
+        self.start_wsgiserver()
 
     def __loop__(self):
-#         logger.debug('from mainLoop __loop__()')
         sleep(2)
     
+    def stop_wsgiserver(self):
+        self.http.stop()
+    
     def stop_threads(self):
-        self.httpd.shutdown()
-        for device_control in self.device_controls:
-            device_control.stop()
-            device_control.join()
+        self.stop_wsgiserver()
+        for controller in self.controllers:
+            controller.stop()
+            controller.join()
         for sensor in self.sensors:
             sensor.stop()
             sensor.join()

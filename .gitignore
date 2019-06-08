@@ -11,3 +11,4 @@ log/*
 weather_data*.txt
 www/
 venv/
+.pytest_cache/

@@ -26,28 +26,28 @@ HGC_SETTINGS = {
              save_data=True),
     ],
     # TODO: Think of replacing the dict objects into a class with a meta pointing to the write subclass
-    'device_controls': [
+    'controllers': [
         dict(name='light_control',
-             class_name='DeviceTimingControl',
+             class_name='TimingController',
              relay_pin=[5, 6],  # 29, 31
              time_on={'hour':15}, # hour=0, minute=0, second=0, microsecond=0, tzinfo=None, *, fold=0
              duration_on={'hours':18}, # days=0, seconds=0, microseconds=0, milliseconds=0, minutes=0, hours=0, weeks=0
              cycles_per_day=1),
         dict(name='irrigation_control',
-             class_name='DeviceTimingControl',
+             class_name='TimingController',
              relay_pin=[22, 27],    # 15, 13
              time_on={'hour':14, 'minute':57}, # hour=0, minute=0, second=0, microsecond=0, tzinfo=None, *, fold=0
              duration_on={'seconds':50}, # days=0, seconds=0, microseconds=0, milliseconds=0, minutes=0, hours=0, weeks=0
              cycles_per_day=0.5),
         dict(name='exhaust_fan_control',
-             class_name='DeviceHumidityCompareControl',
+             class_name='HumidityCompareController',
              relay_pin=[23, 24],    # 16, 18
              sensor_in_name='hum_temp_dht_22_in',
              sensor_out_name='hum_temp_dht_22_out',
              threshold_humidity_upper=65,
              ),
         dict(name='intake_fan_control',
-             class_name='DeviceTempCompareControl',
+             class_name='TempCompareController',
              relay_pin=[16, 26],    # 36, 37
              sensor_in_name='hum_temp_dht_22_in',
              sensor_out_name='hum_temp_dht_22_out',
@@ -64,7 +64,7 @@ HGC_SETTINGS_TEST = {
              data_pin=4,
              save_data=True)
     ],
-    'device_controls': [
+    'controllers': [
         dict(name='light_control',
              class_name='DeviceTimingControl',
              relay_pin=5,

@@ -6,7 +6,7 @@ Created on Friday 29/06/2018
 
 # from netserve import HGCServer, SimpleHTTPAPIRequestHandler
 from time import sleep
-from pin_out import MyGPIO
+# from pin_out import MyGPIO
 from hgc_logging import get_logger
 from base_threads import BaseThread
 
@@ -27,7 +27,7 @@ logger = get_logger()
 class MainLoop(BaseThread):
     def __init__(self, setup_object={}, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        _ = MyGPIO()
+#         _ = MyGPIO()
         self.sensors = []
         self.controllers = []
         self.setup_object = setup_object.copy()

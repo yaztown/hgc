@@ -6,16 +6,16 @@ Created on Tuesday 03/07/2018
 
 import weakref
 
-from base_threads import BaseDeviceControl
+from base_threads import BaseController
 from sensors import HumidityTemperatureSensor
 from pin_out import MyGPIO
 from hgc_logging import get_logger
 
 logger = get_logger()
 
-class DeviceHumTempSensorControl(BaseDeviceControl):
+class HumTempSensorController(BaseController):
     '''
-    This class controls the device's On/Off using a sensor
+    This class uses data from a sensor to control the operation
     '''
     def __init__(self, sensor_name=None,
                  threshold_humidity_upper=100,
@@ -25,10 +25,10 @@ class DeviceHumTempSensorControl(BaseDeviceControl):
                  *args, **kwargs):
         '''
         sensor_name             : is name of the sensor threads
-        threshold_humidity_upper: is the humidity limit that will turn on the device 
-        threshold_humidity_lower: is the humidity limit that will turn off the device
-        threshold_temp_upper    : is the temperature limit that will turn on the device
-        threshold_temp_lower    : is the temperature limit that will turn off the device
+        threshold_humidity_upper: is the humidity limit at which the controller turns on
+        threshold_humidity_lower: is the humidity limit at which the controller turns off
+        threshold_temp_upper    : is the temperature limit at which the controller turn on
+        threshold_temp_lower    : is the temperature limit at which the controller turn off
         '''
         super().__init__(*args, **kwargs)
         _sensor = HumidityTemperatureSensor.get_sensor(sensor_name)
@@ -49,9 +49,9 @@ class DeviceHumTempSensorControl(BaseDeviceControl):
         hum, temp = self.read_sensor()
         
         if hum is None or temp is None:
-            return self._device_on
+            return self._controller_on
         
-        if self._device_on:
+        if self._controller_on:
             if hum >= self.threshold_hum_lower or temp >= self.threshold_temp_lower:
                 return True
             else:
@@ -69,20 +69,20 @@ class DeviceHumTempSensorControl(BaseDeviceControl):
             self.turn_off()
     
     def _on_(self):
-        if self._device_on is not True:
+        if self._controller_on is not True:
             logger.debug('Turned On at Humidity: {humidity}\tTemperature: {temperature}'.format(**self._sensor_ref().get_reading()))
 #         raise NotImplementedError('Should import the RPi.GPIO and do output the pin with the correct logic.')
     
     def _off_(self):
-        if self._device_on is not False:
+        if self._controller_on is not False:
             logger.debug('Turned Off at Humidity: {humidity}\tTemperature: {temperature}'.format(**self._sensor_ref().get_reading()))
 #         raise NotImplementedError('Should import the RPi.GPIO and do output the pin with the correct logic.')
 
 
 
-class DeviceSensorsCompareControl(BaseDeviceControl):
+class SensorsCompareController(BaseController):
     '''
-    This class controls the device's On/Off using two sensors; one inside the box and the other outside.
+    This class controls the operation using two sensors; one inside the box and the other outside.
     The controller will compare the inside temp to the maximum threshold and the lower being the outside temp.
     '''
     def __init__(self, sensor_in_name=None, sensor_out_name=None,
@@ -91,7 +91,7 @@ class DeviceSensorsCompareControl(BaseDeviceControl):
         '''
         sensor_in_name          : is name of the inside sensor thread
         sensor_out_name         : is name of the outside sensor thread
-        threshold_temp_upper    : is the temperature limit that will turn on the device
+        threshold_temp_upper    : is the temperature limit that will turn on
         '''
         super().__init__(*args, **kwargs)
         _sensor_in = HumidityTemperatureSensor.get_sensor(sensor_in_name)
@@ -116,9 +116,9 @@ class DeviceSensorsCompareControl(BaseDeviceControl):
         temp_out = reading_out['temperature']
         
         if temp_in is None or temp_out is None:
-            return self._device_on
+            return self._controller_on
         
-        if self._device_on:
+        if self._controller_on:
             if temp_in >= (temp_out * tolerance):
                 return True
             else:
@@ -136,19 +136,19 @@ class DeviceSensorsCompareControl(BaseDeviceControl):
             self.turn_off()
     
     def _on_(self):
-        if self._device_on is not True:
+        if self._controller_on is not True:
             logger.debug('Turned On at Humidity: {humidity:.1f}\tTemperature: {temperature:.1f}'.format(**self._sensor_in_ref().get_reading()))
             #raise NotImplementedError('Should import the RPi.GPIO and do output the pin with the correct logic.')
     
     def _off_(self):
-        if self._device_on is not False:
+        if self._controller_on is not False:
             logger.debug('Turned Off at Humidity: {humidity:.1f}\tTemperature: {temperature:.1f}'.format(**self._sensor_in_ref().get_reading()))
             #raise NotImplementedError('Should import the RPi.GPIO and do output the pin with the correct logic.')
 
 
-class DeviceHumidityCompareControl(BaseDeviceControl):
+class HumidityCompareController(BaseController):
     '''
-    This class controls the device's On/Off using two sensors; one inside the box and the other outside.
+    This class controls the operation using two sensors; one inside the box and the other outside.
     The controller will compare the inside humidity to the maximum threshold and the lower being the outside temp.
     '''
     def __init__(self, sensor_in_name=None, sensor_out_name=None,
@@ -157,7 +157,7 @@ class DeviceHumidityCompareControl(BaseDeviceControl):
         '''
         sensor_in_name           : is name of the inside sensor thread
         sensor_out_name          : is name of the outside sensor thread
-        threshold_humidity_upper : is the humidity limit that will turn on the device
+        threshold_humidity_upper : is the humidity limit that will turn on
         '''
         super().__init__(*args, **kwargs)
         _sensor_in = HumidityTemperatureSensor.get_sensor(sensor_in_name)
@@ -181,9 +181,9 @@ class DeviceHumidityCompareControl(BaseDeviceControl):
         humidity_out = reading_out['humidity']
         
         if humidity_in is None or humidity_out is None:
-            return self._device_on
+            return self._controller_on
         
-        if self._device_on:
+        if self._controller_on:
             if humidity_in >= (humidity_out * self.tolerance):
                 return True
             else:
@@ -201,12 +201,12 @@ class DeviceHumidityCompareControl(BaseDeviceControl):
             self.turn_off()
     
     def _on_(self):
-        if self._device_on is not True:
+        if self._controller_on is not True:
             logger.debug('Turned On at Humidity: {humidity:.1f}\tTemperature: {temperature:.1f}'.format(**self._sensor_in_ref().get_reading()))
             #raise NotImplementedError('Should import the RPi.GPIO and do output the pin with the correct logic.')
     
     def _off_(self):
-        if self._device_on is not False:
+        if self._controller_on is not False:
             logger.debug('Turned Off at Humidity: {humidity:.1f}\tTemperature: {temperature:.1f}'.format(**self._sensor_in_ref().get_reading()))
             #raise NotImplementedError('Should import the RPi.GPIO and do output the pin with the correct logic.')
 
@@ -223,9 +223,9 @@ class DeviceHumidityCompareControl(BaseDeviceControl):
 
 
 
-class DeviceTempCompareControl(BaseDeviceControl):
+class TempCompareController(BaseController):
     '''
-    This class controls the device's On/Off using two sensors; one inside the box and the other outside.
+    This class controls the operation using two sensors; one inside the box and the other outside.
     The controller will compare the inside temp to the maximum threshold and the lower being the outside temp.
     '''
     def __init__(self, sensor_in_name=None, sensor_out_name=None,
@@ -234,7 +234,7 @@ class DeviceTempCompareControl(BaseDeviceControl):
         '''
         sensor_in_name          : is name of the inside sensor thread
         sensor_out_name         : is name of the outside sensor thread
-        threshold_temp_upper    : is the temperature limit that will turn on the device
+        threshold_temp_upper    : is the temperature limit at which the contorller turns on
         '''
         super().__init__(*args, **kwargs)
         _sensor_in = HumidityTemperatureSensor.get_sensor(sensor_in_name)
@@ -258,9 +258,9 @@ class DeviceTempCompareControl(BaseDeviceControl):
         temp_out = reading_out['temperature']
         
         if temp_in is None or temp_out is None:
-            return self._device_on
+            return self._controller_on
         
-        if self._device_on:
+        if self._controller_on:
             if temp_in >= (temp_out * self.tolerance):
                 return True
             else:
@@ -278,12 +278,12 @@ class DeviceTempCompareControl(BaseDeviceControl):
             self.turn_off()
     
     def _on_(self):
-        if self._device_on is not True:
+        if self._controller_on is not True:
             logger.debug('Turned On at Humidity: {humidity:.1f}\tTemperature: {temperature:.1f}'.format(**self._sensor_in_ref().get_reading()))
             #raise NotImplementedError('Should import the RPi.GPIO and do output the pin with the correct logic.')
     
     def _off_(self):
-        if self._device_on is not False:
+        if self._controller_on is not False:
             logger.debug('Turned Off at Humidity: {humidity:.1f}\tTemperature: {temperature:.1f}'.format(**self._sensor_in_ref().get_reading()))
             #raise NotImplementedError('Should import the RPi.GPIO and do output the pin with the correct logic.')
     
@@ -301,9 +301,9 @@ class DeviceTempCompareControl(BaseDeviceControl):
 
 from time import time
 
-class SensorTimeLimitController(BaseDeviceControl):
+class SensorTimeLimitController(BaseController):
     '''
-    This class controls the device's On/Off using a sensor and a timed operation.
+    This class controls the operation using a sensor and a timed operation.
     The controller will compare the reading to the upper threshold and the lower being the outside temp.
     '''
     def __init__(self, sensor_name=None,
@@ -315,10 +315,10 @@ class SensorTimeLimitController(BaseDeviceControl):
                  *args, **kwargs):
         '''
         sensor_name             : is name of the sensor thread
-        threshold_temp_upper    : is the temperature limit that will turn on the device
-        threshold_temp_lower    : is the temperature limit that will turn off the device
-        max_duration_on         : is the maximum duration, in seconds, for the device to be on
-        min_duration_off        : is the minimum duration, in seconds, for the device to be off
+        threshold_temp_upper    : is the temperature limit that will turn on
+        threshold_temp_lower    : is the temperature limit that will turn off
+        max_duration_on         : is the maximum duration, in seconds, to be on
+        min_duration_off        : is the minimum duration, in seconds, to be off
         reading_type            : 'temperature', 'humidity', 'light', 'moisture', 'co2'
 
         '''
@@ -373,14 +373,14 @@ class SensorTimeLimitController(BaseDeviceControl):
 #             self.turn_on_time = None
     
     def _on_(self):
-        if self._device_on is not True:
+        if self._controller_on is not True:
             sensor_value = self._sensor_ref().get_reading()[self.reading_type]
             logger.debug('Turned On at {}: {:.1f}'.format(self.reading_type, sensor_value))
             MyGPIO().set_relay_on(self.relay_pin)
 
     
     def _off_(self):
-        if self._device_on is not False:
+        if self._controller_on is not False:
             sensor_value = self._sensor_ref().get_reading()[self.reading_type]
             logger.debug('Turned Off at {}: {:.1f}'.format(self.reading_type, sensor_value))
             MyGPIO().set_relay_off(self.relay_pin)

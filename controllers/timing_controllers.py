@@ -4,7 +4,7 @@ Created on Tuesday 03/07/2018
 @author: yaztown
 '''
 from datetime import datetime, timedelta, time
-from base_threads import BaseDeviceControl
+from base_threads import BaseController
 from pin_out import MyGPIO
 from hgc_logging import get_logger
 
@@ -12,16 +12,16 @@ logger = get_logger()
 
 DEFAULT_CYCLES_PER_DAY = 1
 
-class DeviceTimingControl(BaseDeviceControl):
+class TimingController(BaseController):
     '''
-    This class provides a timed (scheduled) control to operate the device
+    This class provides a timed (scheduled) control to operate the controller
     '''
     def __init__(self, time_on=None, duration_on=None, cycles_per_day=DEFAULT_CYCLES_PER_DAY,
                  *args, **kwargs):
         '''
-        time_on        : is datetime.time() init parameters dictionary indicating the time to turn on the device.
+        time_on        : is datetime.time() init parameters dictionary indicating the time to turn on the controller.
         duration_on    : is datetime.timedelta init parameters dictionary indicating the period of time until
-                         turning the device off again.
+                         turning the controller off again.
         cycles_per_day : is a factor indicating how many times per day to repeat the off/on/off cycle.
                          e.g.: A value of 2 will repeat twice a day (12 hours per cycle)
                                A value of 0.5 will repeat every other day (48 hours per cycle)
@@ -94,13 +94,13 @@ class DeviceTimingControl(BaseDeviceControl):
             self.setup_next_cycle()
     
     def _on_(self):
-        if self._device_on is not True:
-            logger.debug('Turned On.  Next Off @ {}'.format(self.next_off))
+        if self._controller_on is not True:
+            logger.debug('{} turned On.  Next Off @ {}'.format(self.name, self.next_off))
             MyGPIO().set_relay_on(self.relay_pin)
     
     def _off_(self):
-        if self._device_on is not False:
-            logger.debug('Turned Off.  Next On @ {}'.format(self.next_on))
+        if self._controller_on is not False:
+            logger.debug('{} turned Off.  Next On @ {}'.format(self.name, self.next_on))
             MyGPIO().set_relay_off(self.relay_pin)
 
     @property

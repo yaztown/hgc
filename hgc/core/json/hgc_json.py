@@ -4,11 +4,6 @@ Created on Monday 11/03/2019
 @author: yaztown
 '''
 from base_threads import BaseThread
-
-# from sensors import HumidityTemperatureSensor
-# 
-# from device_controls import DeviceHumidityCompareControl, DeviceTempCompareControl, DeviceTimingControl
-
 from .myjson import MyJSONEncoder
 
 

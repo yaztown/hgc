@@ -73,3 +73,4 @@ def rpc_set_automatic(**kwargs):
     '''
     return rpc_method_handler(**kwargs)
 
+from . import api_timing

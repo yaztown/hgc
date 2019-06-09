@@ -32,6 +32,7 @@ class TimingController(BaseController):
         if time_on is None or duration_on is None or cycles_per_day is None:
             raise ValueError('One or more parameters is None. Must specify time_on and duration')
         
+        # TODO: Create a method for configuring the class's timing parameters outside the init method
         self.time_on = time(**time_on)
         self.cycles_per_day = cycles_per_day
         
@@ -49,6 +50,25 @@ class TimingController(BaseController):
         self.next_off = self.next_on + self.duration_on
         self.setup_next_cycle()
     
+    
+    def config_controller(self, time_on, duration_on, cycles_per_day):
+        self.time_on = time(**time_on)
+        self.cycles_per_day = cycles_per_day
+        
+        duration_on = timedelta(**duration_on)
+        self.cycle_total_duration = timedelta(days=1)/cycles_per_day
+        
+        if duration_on >= self.cycle_total_duration:
+            raise ValueError('Cannot manage (duration_on) with the provided (cycles_per_day)')
+        
+        self.duration_on = duration_on
+        self.duration_off = self.cycle_total_duration - duration_on
+        
+        today = datetime.now().date()
+        self.next_on = datetime.combine(today, self.time_on)
+        self.next_off = self.next_on + self.duration_on
+        self.setup_next_cycle()
+
     
 #     @classmethod
 #     def from_time_on_and_time_off(cls, stime_on=None, stime_off=None, off_tomorrow=False, *args, **kwargs):

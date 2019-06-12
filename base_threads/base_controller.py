@@ -27,6 +27,9 @@ class BaseController(BaseThread):
         
         self._controller_on = None     # Flag for controller power status
     
+    def config_controller(self, **kwargs):
+        raise NotImplementedError
+    
     def __loop__(self):
         if not self.manual_control:
             self._auto_control()

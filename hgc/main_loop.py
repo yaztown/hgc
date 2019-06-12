@@ -85,7 +85,7 @@ class MainLoop(BaseThread):
         sleep(2)
     
     def stop_wsgiserver(self):
-        self.http.stop()
+        self.httpd.stop()
     
     def stop_threads(self):
         self.stop_wsgiserver()

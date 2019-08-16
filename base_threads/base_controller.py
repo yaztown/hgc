@@ -21,8 +21,9 @@ class BaseController(BaseThread):
         '''
         super().__init__(*args, **kwargs)
         self.relay_pin = relay_pin
-        gpio = MyGPIO()
-        gpio.setup(self.relay_pin, gpio.OUT)
+        if not relay_pin is None:
+            gpio = MyGPIO()
+            gpio.setup(self.relay_pin, gpio.OUT)
         self.manual_control = manual_control
         
         self._controller_on = None     # Flag for controller power status
@@ -90,6 +91,14 @@ class BaseController(BaseThread):
         '''
         self._off_()
         self._controller_on = False
+    
+    def manual_turn_on(self):
+        self.set_manual()
+        self.turn_on()
+    
+    def manual_turn_off(self):
+        self.set_manual()
+        self.turn_off()
     
     @property
     def _serialized_(self):

@@ -59,6 +59,22 @@ def rpc_turn_off(**kwargs):
     '''
     return rpc_method_handler(**kwargs)
 
+@flask_json_rpc.method('Controller.manual_turn_on(uuid=String)')
+def rpc_manual_turn_on(**kwargs):
+    '''
+    This method calls the manual_turn_on() method to the controller
+    this is a shortcut method
+    '''
+    return rpc_method_handler(**kwargs)
+
+@flask_json_rpc.method('Controller.manual_turn_off(uuid=String)')
+def rpc_manual_turn_off(**kwargs):
+    '''
+    This method calls the manual_turn_off() method to the controller
+    this is a shortcut method
+    '''
+    return rpc_method_handler(**kwargs)
+
 @flask_json_rpc.method('Controller.set_manual(uuid=String)')
 def rpc_set_manual(**kwargs):
     '''
@@ -73,4 +89,22 @@ def rpc_set_automatic(**kwargs):
     '''
     return rpc_method_handler(**kwargs)
 
-from . import api_timing
+
+@flask_json_rpc.method('Controller.config_controller(uuid=String, config_options=Object)')
+def rpc_config_controller(**kwargs):
+    '''
+    This method calls the turn_on() method to the controller
+    '''
+    uuid = kwargs.pop('uuid', None)
+    if uuid is None: return ResponseError(err_msg='uuid is None')
+    controller = getController(uuid=uuid)
+    if controller is None: return ResponseError(err_msg='No Controller matching uuid: {}'.format(uuid))
+    try:
+        config_options = kwargs['config_options']
+        method_ret_value = controller.config_controller(**config_options)
+    except:
+        return ResponseError(err_msg='method exception occurred')
+    return ResponseSuccess(success_msg='method: {}'.format('config_controller'), rpc_ret_value=method_ret_value)
+ 
+
+# from . import api_timing
